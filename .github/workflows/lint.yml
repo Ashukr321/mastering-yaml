@@ -1,0 +1,13 @@
+name: YML LINT CHECK
+on: [push,pull_request]
+jobs:
+ lint:
+  runs-on: ubuntu-20.04
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Check yml syntax
+      uses: ibiqlik/action-yamllint@v3
+      with:
+        file_or_dir: "."
+        strict: true
