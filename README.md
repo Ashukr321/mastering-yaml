@@ -1,3 +1,4 @@
+```bash
 mastering-yaml/
 ├── 01-syntax-fundamentals/
 │   ├── basic-types.yaml      # Strings, numbers, booleans
@@ -9,3 +10,4 @@ mastering-yaml/
 │   └── kubernetes-pod.yaml   # Basic K8s deployment example
 ├── 03-practice-challenges/   # Empty files with "To-Do" comments
 └── README.md                 # Documentation and YAML "Gotchas"
+```
