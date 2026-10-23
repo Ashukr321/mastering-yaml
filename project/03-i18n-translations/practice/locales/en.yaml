@@ -1,0 +1,49 @@
+# =====================================================================
+# Project 03 · i18n Translations                         Level: ⭐
+# File: locales/en.yaml
+# Scenario: ShopKart, a React e-commerce app, uses react-i18next for English and Hindi.
+#           Components call t("cart.title") and i18next looks up the nested keys below.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# ---------- Top navigation bar ----------
+navbar:  # t("navbar.home") reads the "home" key inside "navbar"
+  home: Home  # plain string
+  shop: Shop  # plain string
+  cart: Cart  # plain string
+  account: My Account  # spaces are fine in a plain string
+  search_placeholder: Search products...  # grey hint text in the search box; dots are fine
+
+# ---------- Words used everywhere ----------
+common:  # small shared labels for buttons and dialogs
+  # Quoted: old YAML parsers turn a bare Yes or No into true or false.
+  yes_label: "Yes"
+  no_label: ___  # TODO(1): the word No - quote it for the same reason as yes_label
+
+# ---------- Shopping cart ----------
+cart:  # texts on the cart page
+  title: Your Cart  # page heading
+  empty: Your cart is empty.  # shown when there are no items
+  # Plural keys: i18next picks item_one when count is 1, and item_other for every other number.
+  # Quoted because the value starts with "{" - unquoted, YAML would try to read a map.
+  item_one: "{{count}} item"
+  item_other: ___  # TODO(2): "{{count}} items" - keep the double quotes
+  subtotal: "Subtotal: {{amount}}"  # quoted: contains ": " which would otherwise look like a new key
+
+# ---------- Checkout ----------
+checkout:  # texts on the checkout page
+  title: Checkout  # page heading
+  steps:  # a list: the order of the checkout steps matters
+    - Shipping address  # list item 1
+    - Payment  # list item 2
+    - Review order  # list item 3
+  place_order: Place order  # the final button
+  # Quoted: the text contains " #", which would otherwise start a comment.
+  order_number: "Order #{{id}}"
+
+# ---------- Error messages ----------
+errors:  # shown in red under forms and in pop-ups
+  required: This field is required.  # form validation message
+  # TODO(3): add two keys: network ("Network error. Please check your internet connection.")
+  #          and out_of_stock ("Sorry, {{product}} is out of stock." - this one needs quotes)

@@ -1,0 +1,143 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="470" viewBox="0 0 1000 470" role="img" aria-label="YAML data types: string, integer, float, boolean, null, timestamp, sequence and mapping">
+  <style>
+    text { white-space: pre; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; }
+    .sans { font-family: 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif; }
+    .k { fill: #7dd3fc; } .p { fill: #e2e8f0; } .c { fill: #64748b; }
+
+    /* cards pop in once, then a highlight walks across them (8 cards x 1s = 8s loop) */
+    .card { animation: pop .6s ease-out both; }
+    .card .glow { animation: glow 8s ease-in-out infinite both; opacity: 0; }
+    @keyframes pop { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    @keyframes glow { 0%, 14%, 100% { opacity: 0; } 3%, 10% { opacity: 1; } }
+
+    .c1 { animation-delay: 0s; }    .c1 .glow { animation-delay: 1s; }
+    .c2 { animation-delay: .1s; }   .c2 .glow { animation-delay: 2s; }
+    .c3 { animation-delay: .2s; }   .c3 .glow { animation-delay: 3s; }
+    .c4 { animation-delay: .3s; }   .c4 .glow { animation-delay: 4s; }
+    .c5 { animation-delay: .4s; }   .c5 .glow { animation-delay: 5s; }
+    .c6 { animation-delay: .5s; }   .c6 .glow { animation-delay: 6s; }
+    .c7 { animation-delay: .6s; }   .c7 .glow { animation-delay: 7s; }
+    .c8 { animation-delay: .7s; }   .c8 .glow { animation-delay: 8s; }
+  </style>
+
+  <rect width="1000" height="470" rx="18" fill="#0f172a"/>
+  <text x="32" y="42" class="sans" font-size="20" font-weight="700" fill="#f8fafc">YAML data types</text>
+  <text x="32" y="64" class="sans" font-size="13" fill="#64748b">scalars hold one value · collections hold many · the parser infers the type unless you quote or tag it</text>
+
+  <!-- Row 1: scalars -->
+  <g transform="translate(24 84)"><g class="card c1">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#86efac" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#86efac"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#86efac">String</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!str</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">name</tspan><tspan class="p">: Ashutosh</tspan></text>
+      <text x="16" y="92"><tspan class="k">msg</tspan><tspan class="p">: "Hi\n"</tspan></text>
+      <text x="16" y="114"><tspan class="k">raw</tspan><tspan class="p">: 'C:\path'</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#86efac">→ "Ashutosh", "Hi⏎"</text>
+  </g></g>
+
+  <g transform="translate(266 84)"><g class="card c2">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#fca5a5" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#fca5a5"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#fca5a5">Integer</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!int</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">port</tspan><tspan class="p">: 8080</tspan></text>
+      <text x="16" y="92"><tspan class="k">hex</tspan><tspan class="p">: 0x1F</tspan></text>
+      <text x="16" y="114"><tspan class="k">octal</tspan><tspan class="p">: 0o17</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#fca5a5">→ 8080, 31, 15</text>
+  </g></g>
+
+  <g transform="translate(508 84)"><g class="card c3">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#fdba74" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#fdba74"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#fdba74">Float</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!float</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">pi</tspan><tspan class="p">: 3.14</tspan></text>
+      <text x="16" y="92"><tspan class="k">sci</tspan><tspan class="p">: 1.5e3</tspan></text>
+      <text x="16" y="114"><tspan class="k">max</tspan><tspan class="p">: .inf</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#fdba74">→ 3.14, 1500.0, ∞</text>
+  </g></g>
+
+  <g transform="translate(750 84)"><g class="card c4">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#c4b5fd" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#c4b5fd"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#c4b5fd">Boolean</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!bool</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">active</tspan><tspan class="p">: true</tspan></text>
+      <text x="16" y="92"><tspan class="k">debug</tspan><tspan class="p">: false</tspan></text>
+      <text x="16" y="114"><tspan class="c"># yes/no = bool in 1.1!</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#c4b5fd">→ true, false</text>
+  </g></g>
+
+  <!-- Row 2 -->
+  <g transform="translate(24 272)"><g class="card c5">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#94a3b8" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#94a3b8"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#cbd5e1">Null</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!null</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">a</tspan><tspan class="p">: null</tspan></text>
+      <text x="16" y="92"><tspan class="k">b</tspan><tspan class="p">: ~</tspan></text>
+      <text x="16" y="114"><tspan class="k">c</tspan><tspan class="p">:</tspan>      <tspan class="c"># empty</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#cbd5e1">→ null, null, null</text>
+  </g></g>
+
+  <g transform="translate(266 272)"><g class="card c6">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#f9a8d4" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#f9a8d4"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#f9a8d4">Timestamp</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!timestamp</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="70"><tspan class="k">day</tspan><tspan class="p">: 2026-10-01</tspan></text>
+      <text x="16" y="92"><tspan class="k">at</tspan><tspan class="p">: 2026-10-01T09:30:00Z</tspan></text>
+      <text x="16" y="114"><tspan class="c"># parser-dependent</tspan></text>
+    </g>
+    <text x="16" y="152" class="mono" font-size="12" fill="#f9a8d4">→ date / datetime</text>
+  </g></g>
+
+  <g transform="translate(508 272)"><g class="card c7">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#7dd3fc" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#7dd3fc"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#7dd3fc">Sequence (list)</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!seq</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="66"><tspan class="k">tools</tspan><tspan class="p">:</tspan></text>
+      <text x="16" y="86"><tspan class="p">  - docker</tspan></text>
+      <text x="16" y="106"><tspan class="p">  - k8s</tspan></text>
+      <text x="16" y="128"><tspan class="k">ports</tspan><tspan class="p">: [80, 443]</tspan></text>
+    </g>
+    <text x="16" y="156" class="mono" font-size="12" fill="#7dd3fc">→ ["docker", "k8s"]</text>
+  </g></g>
+
+  <g transform="translate(750 272)"><g class="card c8">
+    <rect class="glow" x="-3" y="-3" width="232" height="176" rx="14" fill="none" stroke="#fbbf24" stroke-width="2"/>
+    <rect width="226" height="170" rx="12" fill="#020617" stroke="#1e293b"/>
+    <rect width="226" height="4" rx="2" fill="#fbbf24"/>
+    <text x="16" y="34" class="sans" font-size="16" font-weight="700" fill="#fbbf24">Mapping (dict)</text>
+    <text x="210" y="34" text-anchor="end" class="mono" font-size="11" fill="#64748b">!!map</text>
+    <g class="mono" font-size="13">
+      <text x="16" y="66"><tspan class="k">user</tspan><tspan class="p">:</tspan></text>
+      <text x="16" y="86"><tspan class="p">  </tspan><tspan class="k">id</tspan><tspan class="p">: 1</tspan></text>
+      <text x="16" y="106"><tspan class="p">  </tspan><tspan class="k">role</tspan><tspan class="p">: admin</tspan></text>
+      <text x="16" y="128"><tspan class="k">db</tspan><tspan class="p">: {host: local}</tspan></text>
+    </g>
+    <text x="16" y="156" class="mono" font-size="12" fill="#fbbf24">→ {id: 1, role: "admin"}</text>
+  </g></g>
+</svg>

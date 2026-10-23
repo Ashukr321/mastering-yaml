@@ -1,0 +1,129 @@
+# =====================================================================
+# Project 08 · REST API OpenAPI Spec                     Level: ⭐⭐
+# File: openapi.yaml
+# Scenario: The Bookstore backend team documents its API before writing code, so the mobile
+#           and web teams can build against the same contract and generate clients from it.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+openapi: ___  # TODO(1): the spec version 3.0.3 (quote it so it stays text)
+
+info:  # who and what this API is
+  title: Bookstore API  # the name shown at the top of the docs
+  version: "1.0.0"  # our own API version, quoted so it stays text
+  description: Browse, add and remove books in the store catalogue.  # one-line summary
+
+servers:  # where the API runs; tools let you pick one
+  - url: https://api.bookstore.example.com/v1  # list item: the live server
+    description: Production  # label shown in the server picker
+  - url: ___  # TODO(2): the local dev server http://localhost:3000/v1
+    description: Local development  # label for the local server
+
+tags:  # groups that sort endpoints in the docs
+  - name: books  # the only group in this API
+    description: Everything about books  # shown under the group name
+
+security:  # every endpoint needs a login token unless it says otherwise
+  - bearerAuth: []  # use the bearerAuth scheme; [] means no extra scopes
+
+paths:  # every URL the API offers
+  /books:  # the collection of all books
+    get:  # GET /books lists books
+      tags: [books]  # a flow list: show this endpoint under "books"
+      summary: List books  # short title in the docs
+      operationId: listBooks  # unique name; code generators use it
+      parameters:  # inputs for this request
+        - name: limit  # the parameter's name
+          in: ___  # TODO(3): limit comes from the query string, so: query
+          required: false  # the client may leave it out
+          schema: {type: integer, minimum: 1, maximum: 100, default: 20}  # a flow map
+      responses:  # possible answers, keyed by status code
+        '200':  # quoted so the status code stays text, as OpenAPI expects
+          description: A list of books  # every response needs a description
+          content:  # the body, keyed by media type
+            application/json:  # the body is JSON
+              schema:  # the shape of the body
+                type: array  # a list ...
+                items:  # ... where every item is a Book
+                  $ref: '#/components/schemas/Book'  # quoted: # would start a comment
+    post:  # POST /books adds a book
+      tags: [books]  # show it under "books" too
+      summary: Add a book  # short title in the docs
+      operationId: createBook  # unique name for code generators
+      requestBody:  # what the client sends
+        required: true  # a body is mandatory
+        content:  # body keyed by media type
+          application/json:  # the client sends JSON
+            schema:  # the shape the client must send
+              $ref: ___  # TODO(4): '#/components/schemas/Book' (quoted!)
+      responses:  # possible answers
+        # TODO(5): add a '400' response that reuses '#/components/responses/BadRequest'
+        '201':  # created
+          description: Book created  # what 201 means here
+          content:  # the body we send back
+            application/json:  # as JSON
+              schema:  # shape of the new book
+                $ref: '#/components/schemas/Book'  # reuse the Book schema
+
+  /books/{id}:  # one book; {id} is filled in by the client
+    parameters:  # shared by every method under this path
+      - name: id  # matches {id} in the path
+        in: path  # the value comes from the URL path
+        required: ___  # TODO(6): path parameters must always be required (a boolean)
+        schema: {type: string}  # ids are text
+    get:  # GET /books/{id} returns one book
+      tags: [books]  # show it under "books"
+      summary: Get one book  # short title in the docs
+      operationId: getBook  # unique name for code generators
+      responses:  # possible answers
+        '200':  # found
+          description: The book  # what 200 means here
+          content:  # the body we send back
+            application/json:  # as JSON
+              schema:  # shape of the body
+                $ref: '#/components/schemas/Book'  # reuse the Book schema
+        '404':  # not found
+          $ref: '#/components/responses/NotFound'  # reuse the shared 404 response
+    delete:  # DELETE /books/{id} removes a book
+      tags: [books]  # show it under "books"
+      summary: Delete a book  # short title in the docs
+      operationId: deleteBook  # unique name for code generators
+      responses:  # possible answers
+        # TODO(7): add a '204' response with description "Book deleted (no body)"
+        '404':  # not found
+          $ref: '#/components/responses/NotFound'  # reuse the shared 404 response
+
+components:  # reusable parts that $ref points to
+  schemas:  # data shapes
+    Book:  # one book
+      type: object  # a map of fields
+      required: [title, author]  # fields the client must send
+      properties:  # the fields
+        id: {type: string, readOnly: true}  # set by the server, never sent by clients
+        title: {type: string}  # the book title
+        author: {type: string}  # who wrote it
+        price: {type: number, format: float}  # price in USD
+        publishedYear: {type: integer}  # for example 2024
+    Error:  # the body of every error answer
+      type: object  # a map of fields
+      required: [code, message]  # always present
+      properties:  # the fields
+        code: {type: integer}  # the HTTP status, repeated in the body
+        message: {type: string}  # a human-readable reason
+  responses:  # whole responses that many endpoints share
+    BadRequest:  # used for 400 answers
+      description: The request body is invalid  # what went wrong
+      content:  # the error body
+        application/json:  # as JSON
+          schema: {$ref: '#/components/schemas/Error'}  # a flow map with one $ref
+    NotFound:  # used for 404 answers
+      description: No book with this id  # what went wrong
+      content:  # the error body
+        application/json:  # as JSON
+          schema: {$ref: '#/components/schemas/Error'}  # reuse the Error schema
+  securitySchemes:  # how clients log in
+    bearerAuth:  # the name used in "security" above
+      type: http  # standard HTTP authentication
+      scheme: ___  # TODO(8): send "Authorization: Bearer <token>", so: bearer
+      bearerFormat: JWT  # a hint for docs: the token is a JWT

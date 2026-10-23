@@ -1,0 +1,71 @@
+# =====================================================================
+# Project 17 · K8s Backend Config & Secrets               Level: ⭐⭐⭐⭐
+# File: k8s/deployment.yaml
+# Scenario: Run the Node.js shop API and wire in its settings: env vars from the ConfigMap,
+#           passwords from the Secret, and app.json mounted as a real file.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+apiVersion: apps/v1  # the API group/version that serves Deployments
+kind: Deployment  # keeps N identical pods running
+metadata:  # information that identifies this object
+  name: shop-api  # the Deployment's name
+  namespace: shop  # created inside the namespace from namespace.yaml
+  labels:  # tags on the Deployment itself
+    app: shop-api  # which app this belongs to
+spec:  # the desired state
+  replicas: 2  # two copies, so one can restart while the other serves traffic
+  selector:  # how the Deployment finds its pods
+    matchLabels:  # pods must carry these labels
+      app: shop-api  # must match the template labels below
+  template:  # the blueprint for each pod
+    metadata:  # metadata stamped onto each pod
+      labels:  # pod labels
+        app: shop-api  # matches the selector above
+    spec:  # what runs inside each pod
+      containers:  # the list of containers in the pod
+        - name: api  # container name, used by `kubectl logs` and `kubectl set image`
+          image: ghcr.io/acme/shop-api:2.3.0  # an exact tag, never :latest
+          ports:  # ports the container listens on
+            - name: http  # a name other objects can refer to
+              containerPort: 3000  # matches PORT in the ConfigMap
+          envFrom:  # turn EVERY key of a ConfigMap (or Secret) into an environment variable
+            - configMapRef:  # the source is a ConfigMap
+                name: shop-api-config  # DONE(1): the ConfigMap name from configmap.yaml
+          env:  # single environment variables, each picked one by one
+            - name: DB_USER  # the variable name the Node code reads (process.env.DB_USER)
+              valueFrom:  # don't hard-code the value, look it up
+                secretKeyRef:  # look it up in a Secret
+                  name: shop-api-secrets  # which Secret
+                  key: DB_USER  # which key inside that Secret
+            # DONE(2): add env var DB_PASSWORD read with secretKeyRef from Secret shop-api-secrets,
+            #          key DB_PASSWORD (copy the shape of DB_USER above)
+            - name: DB_PASSWORD  # process.env.DB_PASSWORD in the Node code
+              valueFrom:  # look the value up instead of writing it here
+                secretKeyRef:  # from a Secret, so the password never appears in this file
+                  name: shop-api-secrets  # which Secret
+                  key: DB_PASSWORD  # which key inside that Secret
+            - name: JWT_SECRET  # the token signing key
+              valueFrom:  # look it up
+                secretKeyRef:  # from the Secret
+                  name: shop-api-secrets  # which Secret
+                  key: JWT_SECRET  # DONE(3): the key name inside the Secret (see secret.yaml)
+          volumeMounts:  # where volumes appear inside the container's filesystem
+            - name: app-config  # must match a volume name in `volumes` below
+              # the app reads /app/config/app.json; mounting hides anything already in that folder
+              mountPath: /app/config  # DONE(4): mount the folder /app/config
+              readOnly: true  # the app only reads its config, so forbid writes
+          resources:  # CPU/memory requests and limits
+            requests:  # reserved for the container
+              cpu: 100m  # one tenth of a CPU core
+              memory: 128Mi  # Node.js needs more RAM than nginx
+            limits:  # hard caps
+              memory: 256Mi  # killed and restarted if it goes above this
+      volumes:  # volumes are defined at pod level, then mounted by containers
+        - name: app-config  # DONE(5): the same name used in volumeMounts above
+          configMap:  # this volume's files come from a ConfigMap
+            name: shop-api-config  # which ConfigMap
+            items:  # only expose these keys (without this, every key becomes a file)
+              - key: app.json  # the ConfigMap key
+                path: app.json  # the file name it gets inside mountPath

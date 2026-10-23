@@ -1,0 +1,77 @@
+# =====================================================================
+# Project 09 · Dependabot Updates                        Level: ⭐⭐
+# File: .github/dependabot.yml
+# Scenario: ShopSphere keeps a React frontend, an Express backend, a Dockerfile and CI
+#           workflows in one repo. Dependabot should open tidy, grouped update PRs for all of them.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+version: ___  # TODO(1): the config format version is 2 (a number)
+
+updates:  # a list: one entry per package manager + folder to watch
+  # ---------- React frontend ----------
+  - package-ecosystem: npm  # list item: watch package.json and package-lock.json
+    directory: ___  # TODO(2): the frontend's package.json is in /frontend
+    schedule:  # when Dependabot checks for new versions
+      interval: weekly  # once a week
+      day: monday  # on Monday, so PRs are ready for the new week
+      time: ___  # TODO(3): run at "06:00" (quoted so it stays text)
+      timezone: Asia/Kolkata  # the time above is in this timezone
+    open-pull-requests-limit: ___  # TODO(4): at most 5 open PRs at once (a number)
+    labels:  # labels added to every PR from this entry
+      - dependencies  # list item: one label per line
+      - frontend  # so the frontend team can filter PRs
+    # Note: GitHub now prefers a CODEOWNERS file for this, but the key still shows the idea
+    reviewers:  # who gets asked to review
+      - shopsphere/frontend-team  # an org/team name
+    groups:  # bundle related updates into one PR
+      react:  # the group's name, used in the PR title
+        patterns:  # package names that belong to this group
+          - react  # the react package itself
+          - react-dom  # the matching DOM renderer
+          - "@types/react*"  # quoted: a plain value cannot start with @
+      dev-tools:  # a second group for build and test tools
+        dependency-type: development  # only devDependencies
+        update-types: [minor, patch]  # a flow list: skip risky major updates here
+    ignore:  # updates Dependabot should never suggest
+      - dependency-name: react  # list item: which package
+        update-types: ["version-update:semver-major"]  # wait for us to plan React majors
+
+  # ---------- Express backend ----------
+  - package-ecosystem: npm  # list item: a second npm entry, for another folder
+    directory: /backend  # the API's package.json lives here
+    schedule:  # when to check
+      interval: weekly  # once a week
+      day: monday  # same day as the frontend
+    open-pull-requests-limit: 5  # at most 5 open PRs
+    # TODO(5): add a labels list with "dependencies" and "backend"
+    reviewers:  # who gets asked to review
+      - shopsphere/backend-team  # the backend team
+    groups:  # bundle related updates
+      express:  # one PR for Express and its helpers
+        patterns: ["express", "express-*"]  # a flow list of name patterns
+    ignore:  # updates to skip
+      - dependency-name: mongoose  # list item: which package
+        versions: [">=9.0.0"]  # quoted: a plain value cannot start with >
+
+  # ---------- Docker base images ----------
+  - package-ecosystem: ___  # TODO(6): watch the Dockerfile, the ecosystem is docker
+    directory: /  # the Dockerfile is in the repo root
+    schedule:  # when to check
+      interval: weekly  # once a week
+    labels: [dependencies, docker]  # a flow list works for labels too
+    ignore:  # updates to skip
+      - dependency-name: node  # the node base image
+        update-types: ["version-update:semver-major"]  # stay on the current Node LTS
+
+  # ---------- GitHub Actions workflows ----------
+  - package-ecosystem: github-actions  # update "uses:" versions in workflows
+    directory: /  # Dependabot finds .github/workflows on its own
+    schedule:  # when to check
+      interval: ___  # TODO(7): actions change less often, so: monthly
+    labels: [dependencies, ci]  # flow list of labels
+    groups:  # put every action update into one PR
+      all-actions:  # the group's name
+        patterns:  # which actions belong to it
+          - ___  # TODO(8): match every action: "*" (quote it: a bare * starts an alias)

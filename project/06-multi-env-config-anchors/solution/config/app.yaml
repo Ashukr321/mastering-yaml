@@ -1,0 +1,77 @@
+# =====================================================================
+# Project 06 · Multi-Env Config with Anchors             Level: ⭐⭐
+# File: config/app.yaml
+# Scenario: PayFlow's payments API runs in dev, staging and prod. The team writes the shared
+#           settings once and lets each environment override only what is different.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# The service name; every environment below shares it
+service: payments-api  # plain text, so no quotes are needed
+
+# ">" is a folded block scalar: the lines below are joined into one sentence.
+# Use it for long text you still want to read easily in the file.
+description: >
+  Handles card payments, refunds and payouts for the PayFlow checkout.
+  Each environment below starts from the shared base and overrides a few keys.
+
+# ---------- shared settings ----------
+# "&base" is an anchor: a bookmark on this whole map so we can reuse it later
+base: &base
+  port: 8080  # the HTTP port the API listens on (a number)
+  currency: USD  # default currency for new payments
+  timeout_seconds: 30  # wait this long for the bank before giving up
+  retries: 3  # how many times to retry a failed bank call
+  debug: false  # extra logging is off unless an environment turns it on
+  # "|" is a literal block scalar: every line break below is kept exactly.
+  # This is the log line pattern; the {braces} are filled in at runtime.
+  log_format: |
+    time={timestamp} level={level} service=payments-api
+    request_id={request_id} msg="{message}"
+
+# The database settings get their own anchor, "&db".
+# A merge only copies the top level, so a nested map needs its own anchor.
+db_base: &db
+  host: localhost  # the database server address
+  port: 5432  # the standard PostgreSQL port
+  name: payments  # the database name
+  pool_size: 5  # how many connections to keep open and ready
+
+# ---------- environments ----------
+environments:  # one map per place the service runs
+  dev:  # a developer's laptop
+    # "<<" is the merge key and "*base" is an alias: copy every key from &base here
+    <<: *base
+    debug: true  # override: dev wants detailed logs
+    database: *db  # an alias on its own reuses the whole &db map unchanged
+
+  staging:  # the test server that mirrors production
+    # DONE(1): merge the base settings into staging (hint: same line as in dev)
+    <<: *base  # merge key + alias: start from everything in &base
+    retries: 5  # DONE(2): staging retries more often, use 5 (a number)
+    database:  # a new map that starts from &db and changes one key
+      <<: *db  # copy every database setting from the &db anchor
+      host: db.staging.payflow.internal  # DONE(3): staging DB host is db.staging.payflow.internal
+
+  prod:  # the live system real customers use
+    # DONE(4): merge the base settings into prod as well
+    <<: *base  # start from &base, then override below
+    timeout_seconds: 15  # DONE(5): prod should fail fast, use 15 seconds
+    database:  # start from &db again, then change two keys
+      <<: *db  # copy every database setting from the &db anchor
+      host: db.prod.payflow.internal  # the production database host
+      pool_size: 20  # DONE(6): prod has more traffic, use 20 connections
+
+# ---------- reports ----------
+reports:  # jobs that run on a schedule
+  # "|" keeps every line, so this SQL stays readable and runs as written
+  daily_totals_sql: |
+    SELECT currency, SUM(amount) AS total
+    FROM payments
+    WHERE created_at >= CURRENT_DATE - INTERVAL '1 day'
+    GROUP BY currency;
+  # DONE(7): add a key "alert_message" with a folded (>) text written over 2 lines
+  alert_message: >  # ">" folds the 2 lines below into one sentence
+    Daily payment totals are ready.
+    Check the dashboard before 9 AM.

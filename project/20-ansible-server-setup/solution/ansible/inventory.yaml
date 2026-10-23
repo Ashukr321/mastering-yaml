@@ -1,0 +1,37 @@
+# =====================================================================
+# Project 20 · Ansible Server Setup                       Level: ⭐⭐⭐⭐
+# File: ansible/inventory.yaml
+# Scenario: A small shop runs on plain Ubuntu VMs, not Kubernetes. Ansible needs a list of
+#           those servers, grouped by job, before it can set them up.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Use it with: ansible-inventory -i inventory.yaml --graph
+all:  # the built-in group that contains every host
+  vars:  # variables given to EVERY host (a group or host can override them)
+    ansible_user: deploy  # DONE(1): the SSH user Ansible logs in as; we use deploy
+    ansible_python_interpreter: /usr/bin/python3  # Ubuntu ships Python 3 here; avoids a warning
+    ansible_ssh_private_key_file: ~/.ssh/shop_deploy  # the private key for that user (never commit keys)
+  children:  # groups inside `all`
+    # DONE(2): add a group db with one host db1.shop.example.com (ansible_host 10.0.1.20)
+    #          and a group var postgres_version set to the quoted string "16"
+    db:  # the database servers
+      hosts:  # the machines in this group
+        db1.shop.example.com:  # inventory name of the host
+          ansible_host: 10.0.1.20  # the IP to actually connect to
+      vars:  # variables for every host in db
+        postgres_version: "16"  # quoted so it stays a string, not the number 16
+    web:  # the app servers that run Node.js behind nginx
+      hosts:  # the machines in this group; each key is a host name, its value is host vars
+        web1.shop.example.com:  # inventory name of the host
+          ansible_host: 10.0.1.11  # the IP to connect to when DNS isn't set up
+        web2.shop.example.com:  # a second app server for redundancy
+          ansible_host: 10.0.1.12  # DONE(3): its IP address is 10.0.1.12
+      vars:  # variables for every host in web
+        app_port: 3000  # DONE(4): the Node app listens on 3000 (a number)
+        enable_firewall: true  # the playbook only configures ufw when this is true
+    production:  # a group made of OTHER groups, so you can run `--limit production`
+      children:  # the member groups (their hosts and vars come along)
+        db:  # empty value: re-use the db group defined above
+        web:  # empty value: re-use the web group defined above

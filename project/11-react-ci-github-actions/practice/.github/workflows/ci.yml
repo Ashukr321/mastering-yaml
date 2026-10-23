@@ -1,0 +1,76 @@
+# =====================================================================
+# Project 11 · React CI with GitHub Actions                Level: ⭐⭐⭐
+# File: .github/workflows/ci.yml
+# Scenario: A frontend team ships a React (Vite) dashboard. Every push and pull
+#           request to main must pass lint, tests and a build before review.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# The name shown in the GitHub "Actions" tab.
+name: Frontend CI
+
+# "on:" lists the events that start this workflow.
+on:
+  # Run when commits are pushed to the repo.
+  push:
+    # Only pushes to these branches count.
+    branches:
+      - ___  # TODO(1): the main branch
+    # Only run when a changed file matches one of these globs (saves CI minutes).
+    paths:
+      - "src/**"  # any file under src/, at any depth (** = any folders)
+      - "public/**"  # static assets served as-is
+      - "package.json"  # dependency list and npm scripts
+      - "package-lock.json"  # exact dependency versions
+      - ".github/workflows/ci.yml"  # this file, so CI changes are tested too
+  # Run when a pull request targets these branches.
+  pull_request:
+    # TODO(2): the same paths filter as push, so docs-only PRs skip CI.
+    #          Hint: add "paths:" with the same five quoted globs as above.
+    # Same branch filter as push.
+    branches:
+      - main  # PRs that want to merge into main
+
+# Give the job's GITHUB_TOKEN read-only access (least privilege).
+permissions:
+  contents: read  # enough to check out the code
+
+# Only one run per branch at a time; a new push cancels the older run.
+concurrency:
+  # ${{ }} is GitHub expression syntax, filled in before the run starts.
+  group: ___  # TODO(3): workflow name + branch ref -> ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ___  # TODO(4): stop the outdated run to save minutes (a boolean)
+
+# A workflow is made of one or more jobs.
+jobs:
+  # "build" is the job id (you pick it; used by needs: in other jobs).
+  build:
+    name: Lint, test and build  # friendly name shown in the UI
+    runs-on: ___  # TODO(5): a fresh GitHub-hosted Linux VM (ubuntu-latest)
+    timeout-minutes: 15  # kill the job if it hangs, instead of the 6h default
+    # Steps run in order on the same machine.
+    steps:
+      - name: Check out code  # each list item ("- ") is one step
+        uses: actions/checkout@v4  # downloads the repo into the runner
+      - name: Set up Node.js 20  # install Node before any npm command
+        uses: actions/setup-node@v4  # official action to install Node
+        # "with:" passes inputs to the action.
+        with:
+          node-version: ___  # TODO(6): Node 20, quoted so YAML keeps it as text ("20")
+          cache: ___  # TODO(7): the package manager whose cache to reuse (npm)
+      - name: Install dependencies  # clean, reproducible install
+        run: ___  # TODO(8): the npm command that installs exactly what package-lock.json says
+      - name: Lint  # catch style and obvious bugs first (fast fail)
+        run: npm run lint  # runs the "lint" script from package.json
+      # TODO(9): run the unit tests.
+      #          Hint: a step named "Run tests" whose run: is npm test
+      - name: Build  # create the production bundle in dist/
+        run: npm run build  # runs "vite build"
+      - name: Upload dist  # keep the built site so reviewers can download it
+        uses: actions/upload-artifact@v4  # stores files with the workflow run
+        with:
+          name: dist  # artifact name shown on the run page
+          path: ___  # TODO(10): the folder Vite writes the build into (dist/)
+          retention-days: 7  # auto-delete after a week
+          if-no-files-found: error  # fail loudly if the build produced nothing

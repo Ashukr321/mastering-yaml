@@ -1,0 +1,82 @@
+# =====================================================================
+# Project 10 · Docker Compose for a MERN App             Level: ⭐⭐
+# File: docker-compose.yml
+# Scenario: A shop team wants every new developer to start the whole MERN stack (React, Express,
+#           MongoDB and an admin UI) with one command: docker compose up.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# The project name; Docker puts it in front of container, network and volume names
+name: mern-shop
+
+services:  # each key below is one container
+  frontend:  # the React app (built with Vite)
+    build:  # build the image from our own code
+      context: ___  # TODO(1): the frontend code is in ./frontend
+      dockerfile: Dockerfile  # the file inside that folder with the build steps
+    image: mern-shop/frontend:dev  # the name and tag given to the built image
+    ports:  # host port : container port
+      - ___  # TODO(2): "5173:5173" (quoted so YAML keeps it as text)
+    environment:  # variables the app reads at start-up
+      VITE_API_URL: http://localhost:4000/api  # where the browser finds the API
+    volumes:  # files shared with the container
+      - ./frontend/src:/app/src  # bind mount: edits on your laptop show up live
+    depends_on:  # start these services first
+      - api  # list item: the frontend needs the API
+    networks:  # which networks this container joins
+      - web  # talks to the API only
+    restart: unless-stopped  # restart after a crash, but not after "docker compose stop"
+
+  api:  # the Express backend
+    build:  # build from our own code
+      context: ./backend  # the backend code folder
+    image: mern-shop/api:dev  # name and tag for the built image
+    ports:  # host port : container port
+      - "4000:4000"  # always quote ports: YAML 1.1 reads a plain 22:22 as a number
+    # TODO(3): add "env_file" as a list with one item: ./backend/.env
+    environment:  # extra variables written right here
+      NODE_ENV: development  # turn on dev-only behaviour
+      PORT: "4000"  # quoted: environment values should be text
+      # ${...} is filled in by Compose from your shell or a .env file
+      MONGO_URL: "mongodb://admin:${MONGO_ROOT_PASSWORD:-changeme}@mongo:27017/shop?authSource=admin"
+    depends_on:  # the long form lets us wait for a condition
+      mongo:  # the service to wait for
+        condition: ___  # TODO(4): wait until mongo's healthcheck passes: service_healthy
+    networks: [web, db]  # a flow list: the API sits between frontend and database
+    restart: unless-stopped  # restart after a crash
+
+  mongo:  # the MongoDB database
+    image: mongo:7  # the official image, major version 7 (no build needed)
+    environment:  # settings read by the mongo image on first start
+      MONGO_INITDB_ROOT_USERNAME: admin  # the admin user to create
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-changeme}  # dev default only
+    volumes:  # keep data when the container is removed
+      - ___  # TODO(5): named volume mongo-data mounted at /data/db
+    healthcheck:  # how Docker knows the database is ready
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]  # the check command
+      interval: 10s  # run the check every 10 seconds
+      timeout: 5s  # fail a check that takes longer than 5 seconds
+      retries: 5  # mark unhealthy after 5 failed checks
+    networks:  # no "ports": the database is not reachable from your laptop
+      - db  # only the API and mongo-express can reach it
+    restart: ___  # TODO(6): the database should always come back: always
+
+  mongo-express:  # a web admin UI for MongoDB
+    image: mongo-express:1.0.2  # a pinned version of the official image
+    ports:  # host port : container port
+      - ___  # TODO(7): open the admin UI on port 8081 ("8081:8081", quoted)
+    environment:  # how mongo-express connects to the database
+      # the full database address, with the same user and password as above
+      ME_CONFIG_MONGODB_URL: "mongodb://admin:${MONGO_ROOT_PASSWORD:-changeme}@mongo:27017/"
+    depends_on:  # start the database first
+      - mongo  # list item: the service name
+    networks:  # which networks to join
+      - db  # same network as mongo
+    restart: unless-stopped  # restart after a crash
+
+# TODO(8): add a top-level "volumes" map that declares the named volume mongo-data
+
+networks:  # private networks; containers find each other by service name
+  web:  # frontend <-> api
+  db:  # api and mongo-express <-> mongo

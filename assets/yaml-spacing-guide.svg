@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="650" viewBox="0 0 1000 650" role="img" aria-label="YAML spacing and indentation guide: common beginner mistakes and their fixes">
+  <style>
+    text { white-space: pre; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; }
+    .sans { font-family: 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif; }
+    .k { fill: #7dd3fc; } .p { fill: #e2e8f0; } .v { fill: #86efac; } .n { fill: #fca5a5; }
+    .sp { fill: #fbbf24; }                 /* visible space dot */
+    .tab { fill: #f87171; }                /* visible tab arrow */
+    .err { fill: #f87171; } .good { fill: #4ade80; } .c { fill: #64748b; }
+
+    /* spotlight walks down the 6 rules (6 x 1.5s = 9s loop) */
+    .hl  { animation: hl 9s ease-in-out infinite both; }
+    .x   { animation: shake 9s linear infinite both; }
+    .ok  { animation: pop 9s ease-out infinite both; transform-box: fill-box; transform-origin: center; }
+    @keyframes hl    { 0%, 18%, 100% { opacity: 0; } 2%, 15% { opacity: 1; } }
+    @keyframes shake { 0%, 7%, 100% { transform: none; } 2% { transform: translateX(-4px); } 3% { transform: translateX(4px); } 4% { transform: translateX(-4px); } 5% { transform: translateX(4px); } }
+    @keyframes pop   { 0%, 9%, 100% { transform: none; } 6% { transform: scale(1.5); } }
+    .r2 * { animation-delay: 1.5s; } .r3 * { animation-delay: 3s; } .r4 * { animation-delay: 4.5s; }
+    .r5 * { animation-delay: 6s; }   .r6 * { animation-delay: 7.5s; }
+
+    .blink { animation: blink 1.2s steps(1, end) infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+  </style>
+
+  <rect width="1000" height="650" rx="18" fill="#0f172a"/>
+
+  <!-- header -->
+  <text x="32" y="44" class="sans" font-size="24" font-weight="800" fill="#f8fafc">Spacing &amp; Indentation Guide</text>
+  <text x="32" y="68" class="sans" font-size="13" fill="#94a3b8">In YAML, whitespace <tspan font-weight="700" fill="#fbbf24">is</tspan> syntax. These 6 rules fix most beginner errors.</text>
+  <g class="mono" font-size="13">
+    <rect x="738" y="28" width="236" height="30" rx="8" fill="#020617" stroke="#334155"/>
+    <text x="752" y="48"><tspan class="sp blink">·</tspan><tspan class="c"> = space    </tspan><tspan class="tab">→</tspan><tspan class="c"> = tab (never!)</tspan></text>
+  </g>
+
+  <g class="sans" font-size="13" font-weight="700" letter-spacing="1">
+    <text x="262" y="100" fill="#f87171">✗  WRONG</text>
+    <text x="624" y="100" fill="#4ade80">✓  RIGHT</text>
+  </g>
+
+  <!-- Row 1: tabs -->
+  <g class="r1" transform="translate(0 112)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">1</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Spaces, never tabs</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">Tabs are illegal for indentation.</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">Set your editor: tab → 2 spaces.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="22"><tspan class="k">app</tspan><tspan class="p">:</tspan></text>
+      <text x="278" y="42"><tspan class="tab">→   </tspan><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="v">api</tspan></text>
+      <text x="278" y="62" class="err" font-size="12"># error: found character '\t'</text>
+      <text x="640" y="22"><tspan class="k">app</tspan><tspan class="p">:</tspan></text>
+      <text x="640" y="42"><tspan class="sp">··</tspan><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="v">api</tspan></text>
+      <text x="640" y="62" class="good" font-size="12"># 2 spaces per level</text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- Row 2: space after colon -->
+  <g class="r2" transform="translate(0 192)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">2</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Space after the colon</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">key: value, never key:value.</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">No space = it's just one string.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="32"><tspan class="p">port:8080</tspan></text>
+      <text x="278" y="56" class="err" font-size="12"># → one string "port:8080"</text>
+      <text x="640" y="32"><tspan class="k">port</tspan><tspan class="p">:</tspan><tspan class="sp">·</tspan><tspan class="n">8080</tspan></text>
+      <text x="640" y="56" class="good" font-size="12"># → {port: 8080}</text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- Row 3: space after dash -->
+  <g class="r3" transform="translate(0 272)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">3</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Space after the dash</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">List items are "- item".</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">"-item" is a plain string.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="22"><tspan class="k">tools</tspan><tspan class="p">:</tspan></text>
+      <text x="278" y="42"><tspan class="sp">··</tspan><tspan class="p">-docker</tspan></text>
+      <text x="278" y="62" class="err" font-size="12"># → string "-docker", not a list</text>
+      <text x="640" y="22"><tspan class="k">tools</tspan><tspan class="p">:</tspan></text>
+      <text x="640" y="42"><tspan class="sp">··</tspan><tspan class="p">-</tspan><tspan class="sp">·</tspan><tspan class="v">docker</tspan></text>
+      <text x="640" y="62" class="good" font-size="12"># → ["docker"]</text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- Row 4: consistent indent -->
+  <g class="r4" transform="translate(0 352)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">4</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Keep siblings aligned</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">Keys at the same level need the</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">exact same number of spaces.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="22"><tspan class="k">db</tspan><tspan class="p">:</tspan></text>
+      <text x="278" y="42"><tspan class="sp">··</tspan><tspan class="k">host</tspan><tspan class="p">: </tspan><tspan class="v">local</tspan></text>
+      <text x="278" y="62"><tspan class="sp">···</tspan><tspan class="k">port</tspan><tspan class="p">: </tspan><tspan class="n">5432</tspan><tspan class="err" font-size="12">  # bad indentation</tspan></text>
+      <text x="640" y="22"><tspan class="k">db</tspan><tspan class="p">:</tspan></text>
+      <text x="640" y="42"><tspan class="sp">··</tspan><tspan class="k">host</tspan><tspan class="p">: </tspan><tspan class="v">local</tspan></text>
+      <text x="640" y="62"><tspan class="sp">··</tspan><tspan class="k">port</tspan><tspan class="p">: </tspan><tspan class="n">5432</tspan></text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- Row 5: nesting -->
+  <g class="r5" transform="translate(0 432)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">5</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Indent children deeper</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">A child must sit to the right</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">of its parent key.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="22"><tspan class="k">server</tspan><tspan class="p">:</tspan></text>
+      <text x="278" y="42"><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="v">web</tspan></text>
+      <text x="278" y="62" class="err" font-size="12"># server = null, name is a sibling</text>
+      <text x="640" y="22"><tspan class="k">server</tspan><tspan class="p">:</tspan></text>
+      <text x="640" y="42"><tspan class="sp">··</tspan><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="v">web</tspan></text>
+      <text x="640" y="62" class="good" font-size="12"># → {server: {name: web}}</text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- Row 6: list alignment -->
+  <g class="r6" transform="translate(0 512)">
+    <rect class="hl" x="18" y="-4" width="964" height="78" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-opacity=".5"/>
+    <circle cx="44" cy="22" r="13" fill="#38bdf8" fill-opacity=".15" stroke="#38bdf8"/>
+    <text x="44" y="27" text-anchor="middle" class="sans" font-size="13" font-weight="700" fill="#7dd3fc">6</text>
+    <text x="66" y="27" class="sans" font-size="15" font-weight="700" fill="#f8fafc">Line up list items</text>
+    <text x="66" y="47" class="sans" font-size="12" fill="#94a3b8">Every "- " in one list starts</text>
+    <text x="66" y="63" class="sans" font-size="12" fill="#94a3b8">in the same column.</text>
+    <rect x="262" y="0" width="350" height="70" rx="10" fill="#1c0a0f" stroke="#7f1d1d"/>
+    <rect x="624" y="0" width="350" height="70" rx="10" fill="#052e16" fill-opacity=".6" stroke="#166534"/>
+    <g class="mono" font-size="14">
+      <text x="278" y="22"><tspan class="k">ports</tspan><tspan class="p">:</tspan></text>
+      <text x="278" y="42"><tspan class="sp">··</tspan><tspan class="p">- </tspan><tspan class="n">80</tspan></text>
+      <text x="278" y="62"><tspan class="sp">····</tspan><tspan class="p">- </tspan><tspan class="n">443</tspan><tspan class="err" font-size="12">  # → one item "80 - 443"</tspan></text>
+      <text x="640" y="22"><tspan class="k">ports</tspan><tspan class="p">:</tspan></text>
+      <text x="640" y="42"><tspan class="sp">··</tspan><tspan class="p">- </tspan><tspan class="n">80</tspan></text>
+      <text x="640" y="62"><tspan class="sp">··</tspan><tspan class="p">- </tspan><tspan class="n">443</tspan></text>
+    </g>
+    <text class="x" x="588" y="24" font-size="18" fill="#f87171">✗</text>
+    <text class="ok" x="950" y="24" font-size="18" fill="#4ade80">✓</text>
+  </g>
+
+  <!-- footer -->
+  <text x="500" y="625" text-anchor="middle" class="sans" font-size="13" fill="#94a3b8">Rule of thumb: <tspan fill="#fbbf24" font-weight="700">2 spaces per level</tspan> · <tspan class="mono" fill="#e2e8f0">key: value</tspan> · <tspan class="mono" fill="#e2e8f0">- item</tspan> · run <tspan class="mono" fill="#e2e8f0">yamllint</tspan> before you commit</text>
+</svg>

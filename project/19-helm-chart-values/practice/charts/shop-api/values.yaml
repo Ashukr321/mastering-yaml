@@ -1,0 +1,60 @@
+# =====================================================================
+# Project 19 · Helm Chart & Values                        Level: ⭐⭐⭐⭐
+# File: charts/shop-api/values.yaml
+# Scenario: These are the chart's default settings. Each environment overrides only what
+#           differs, e.g. `helm install shop ./charts/shop-api -f values-prod.yaml`.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Templates read these as {{ .Values.<path> }}, e.g. {{ .Values.image.repository }}.
+# How many pods to run (ignored when autoscaling.enabled is true; the HPA decides then)
+replicaCount: ___  # TODO(1): run 2 pods (a plain number)
+image:  # which container image to run
+  repository: ghcr.io/acme/shop-api  # registry + image name, without the tag
+  # quote tags: a tag like 2.10 would otherwise be read as the number 2.1
+  tag: ___  # TODO(2): the tag 2.3.0, quoted (it should match appVersion in Chart.yaml)
+  pullPolicy: IfNotPresent  # pull only if the node doesn't have this tag yet
+imagePullSecrets: []  # names of registry login Secrets; empty list = public image or node already logged in
+service:  # the Kubernetes Service in front of the pods
+  type: ClusterIP  # internal only; the Ingress below exposes it
+  port: 80  # the port the Service listens on
+  targetPort: 3000  # the port the Node app listens on in the container
+ingress:  # public HTTP(S) access
+  enabled: true  # templates wrap the Ingress in {{ if .Values.ingress.enabled }}
+  className: nginx  # which Ingress controller handles it
+  annotations:  # passed straight onto the Ingress object
+    cert-manager.io/cluster-issuer: letsencrypt-prod  # get a TLS certificate automatically
+  hosts:  # a LIST of hostnames, each with its own list of paths
+    - host: api.shop.example.com  # the public hostname
+      paths:  # URL paths on that host
+        - path: /  # everything on this host
+          pathType: Prefix  # match / and all sub-paths
+  tls:  # HTTPS settings
+    - secretName: shop-api-tls  # Secret where cert-manager stores the certificate
+      hosts:  # hostnames the certificate covers
+        - api.shop.example.com  # must match a host above
+# TODO(3): add `resources:` with requests (cpu 100m, memory 128Mi) and limits (cpu 500m, memory 256Mi)
+autoscaling:  # settings for a HorizontalPodAutoscaler (see project 18)
+  enabled: false  # off by default; turn on per environment
+  minReplicas: 2  # lowest pod count
+  maxReplicas: 10  # highest pod count
+  targetCPUUtilizationPercentage: 70  # add pods above 70% of the CPU request
+env:  # extra environment variables, as a LIST of name/value maps (the same shape Kubernetes uses)
+  - name: NODE_ENV  # variable name
+    value: production  # variable value
+  - name: PORT  # the port the app listens on
+    value: ___  # TODO(4): 3000 as a quoted string; Kubernetes env values must be strings
+  - name: LOG_LEVEL  # how chatty the logs are
+    value: info  # debug, info, warn or error
+nodeSelector: ___  # TODO(5): an empty map (no node restrictions); environments may add e.g. disktype: ssd
+tolerations: []  # an empty list: don't schedule onto tainted nodes
+affinity: {}  # an empty map: no special placement rules
+# Settings for the bitnami postgresql sub-chart. Values under its name are passed to that chart.
+postgresql:
+  # Chart.yaml has `condition: postgresql.enabled`, so this switch turns the database on or off
+  enabled: ___  # TODO(6): install the bundled database (a boolean)
+  auth:  # database login settings understood by the bitnami chart
+    username: shop  # the app's database user
+    database: shop  # the database created on first start
+    existingSecret: shop-db-credentials  # read passwords from this Secret; never put them in values.yaml

@@ -1,0 +1,54 @@
+# =====================================================================
+# Project 16 · K8s Frontend Deployment                    Level: ⭐⭐⭐⭐
+# File: k8s/deployment.yaml
+# Scenario: The web team builds the React storefront into static files inside an
+#           nginx:1.27-alpine image. Run 3 copies on Kubernetes with zero-downtime updates.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+apiVersion: apps/v1  # the API group/version that serves Deployments
+kind: Deployment  # keeps N identical pods running and replaces them safely on updates
+metadata:  # information that identifies this object
+  name: shop-frontend  # the Deployment's name, unique inside its namespace
+  labels:  # tags on the Deployment itself, handy for `kubectl get deploy -l app=shop-frontend`
+    app: shop-frontend  # which app this belongs to
+    tier: frontend  # which layer of the system it is
+spec:  # the desired state Kubernetes keeps making true
+  replicas: ___  # TODO(1): run 3 copies of the pod (a plain number, no quotes)
+  revisionHistoryLimit: 5  # keep 5 old ReplicaSets so `kubectl rollout undo` can roll back
+  selector:  # how the Deployment finds the pods it owns
+    matchLabels:  # a pod must carry ALL of these labels to be counted
+      app: ___  # TODO(2): must equal the pod template label below, or the Deployment owns no pods
+  strategy:  # how old pods are replaced by new ones during an update
+    type: ___  # TODO(3): swap pods a few at a time (the other choice, Recreate, causes downtime)
+    rollingUpdate:  # tuning knobs for the rolling update
+      maxSurge: 1  # allow 1 extra pod above `replicas` while updating
+      maxUnavailable: ___  # TODO(4): never have fewer ready pods than `replicas` (a number), so users see no gap
+  template:  # the blueprint for every pod this Deployment creates
+    metadata:  # metadata stamped onto each pod
+      labels:  # pod labels; both the selector above and the Service match on these
+        app: shop-frontend  # matches spec.selector.matchLabels.app
+        tier: frontend  # extra label; not used by the selector, but the Service uses it
+    spec:  # what runs inside each pod
+      containers:  # a pod can run several containers; we need just one
+        - name: web  # container name, used by `kubectl logs` and `kubectl set image`
+          # the image is built FROM nginx:1.27-alpine with the React `build/` folder copied in;
+          # our CI pushed it as ghcr.io/acme/shop-frontend with the tag 1.4.2
+          image: ___  # TODO(5): image:tag with an exact tag, never :latest
+          imagePullPolicy: IfNotPresent  # only pull when the node doesn't already have this tag
+          ports:  # ports the container listens on
+            - name: http  # a port name lets probes and Services say "http" instead of a number
+              containerPort: 80  # nginx listens on port 80 by default
+              protocol: TCP  # TCP is the default; written out to be explicit
+          # TODO(6): add `resources:` with requests (cpu 100m, memory 64Mi) and limits (cpu 250m, memory 128Mi)
+          readinessProbe:  # "can this pod take traffic yet?" A failing pod is removed from the Service
+            httpGet:  # check by sending an HTTP GET request
+              path: ___  # TODO(7): the URL path to request; nginx serves index.html at the site root
+              port: http  # the named container port from above
+            initialDelaySeconds: 5  # wait 5s after start before the first check
+            periodSeconds: 10  # then check every 10s
+          # TODO(8): add a livenessProbe: httpGet path / on port http, initialDelaySeconds 15,
+          #          periodSeconds 20, failureThreshold 3
+          securityContext:  # security settings for this one container
+            allowPrivilegeEscalation: false  # the process can never gain more rights than it started with

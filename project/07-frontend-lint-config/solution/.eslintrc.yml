@@ -1,0 +1,72 @@
+# =====================================================================
+# Project 07 · Frontend Lint Config                      Level: ⭐⭐
+# File: .eslintrc.yml
+# Scenario: A React + TypeScript storefront team wants one shared lint setup so code reviews
+#           stop arguing about style and start catching real bugs.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# "root: true" tells ESLint to stop looking in parent folders for more configs
+root: true
+
+# env: which global variables exist where the code runs
+env:
+  browser: true  # allow browser globals such as window and document
+  es2022: true  # allow modern globals such as Promise and globalThis
+  node: true  # build scripts also use Node globals such as process
+
+# The parser turns TypeScript code into a tree that ESLint can check
+parser: "@typescript-eslint/parser"  # DONE(1): "@typescript-eslint/parser" (quote it: it starts with @)
+
+# parserOptions: tell the parser which syntax to expect
+parserOptions:
+  ecmaVersion: latest  # understand the newest JavaScript syntax
+  sourceType: module  # files use import / export
+  ecmaFeatures:  # extra syntax switches
+    jsx: true  # DONE(2): React files contain JSX, so turn it on (a boolean)
+
+# settings: shared information that plugins can read
+settings:
+  react:  # settings for eslint-plugin-react
+    version: detect  # read the React version from package.json
+
+# extends: start from shared rule sets; later items win over earlier ones
+extends:
+  - eslint:recommended  # ESLint's own safe defaults
+  - plugin:react/recommended  # common React mistakes
+  - plugin:react-hooks/recommended  # the rules of hooks
+  - plugin:@typescript-eslint/recommended  # TypeScript-aware rules
+  # DONE(3): add "prettier" as the LAST item so it can switch off style rules
+  - prettier  # last on purpose: turns off rules that fight with Prettier
+
+# plugins: extra rule packages installed from npm
+plugins:
+  - react  # eslint-plugin-react
+  - react-hooks  # eslint-plugin-react-hooks
+  - "@typescript-eslint"  # quoted because a plain value cannot start with @
+
+# rules: severity is "off", "warn" or "error"; a list adds options after it
+rules:
+  react/react-in-jsx-scope: "off"  # DONE(4): React 17+ needs no import, set it to "off" (quoted!)
+  react/prop-types: "off"  # TypeScript types already check props
+  react-hooks/exhaustive-deps: warn  # warn when a hook forgets a dependency
+  no-console:  # a block list: severity first, then an options map
+    - warn  # the severity
+    - allow: [warn, error]  # options: console.warn and console.error are fine
+  # A flow list on one line: [severity, options]
+  "@typescript-eslint/no-unused-vars": [error, {argsIgnorePattern: "^_"}]
+  # DONE(5): add rule "eqeqeq" as a block list: severity error, then the option always
+  eqeqeq:  # always use === instead of ==
+    - error  # the severity
+    - always  # the option
+
+# overrides: different settings for files that match a pattern
+overrides:
+  - files:  # list item: the dash starts one override entry
+      - "**/*.test.ts"  # quoted because a plain value cannot start with *
+      - "**/*.test.tsx"  # DONE(6): also match "**/*.test.tsx" (quote it: it starts with *)
+    env:  # extra globals only for test files
+      jest: true  # allow describe, it and expect
+    rules:  # relaxed rules for tests
+      "@typescript-eslint/no-explicit-any": "off"  # mocks often need any

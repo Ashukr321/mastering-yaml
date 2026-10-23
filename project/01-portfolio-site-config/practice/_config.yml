@@ -1,0 +1,51 @@
+# =====================================================================
+# Project 01 · Portfolio Site Config                     Level: ⭐
+# File: _config.yml
+# Scenario: Priya, a frontend developer, builds her portfolio with Jekyll.
+#           Jekyll reads this file to fill in the title, menu and theme on every page.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# ---------- Basic site info ----------
+# Shown in the browser tab. Quotes are optional here ("|" only means block text at the START of a value),
+# but quoting text that has symbols in it is a safe habit.
+title: "Priya Sharma | Frontend Developer"
+description: Portfolio, blog and side projects of a React developer  # plain text: no quotes needed
+# Quotes are optional for URLs (":" only matters when a space follows it), but quoting them is a safe habit.
+url: ___  # TODO(1): the live address https://priyasharma.dev - quote it
+baseurl: ""  # empty string (two quotes): the site sits at the root of the domain, not in a sub-folder
+lang: en  # language code, Jekyll puts it in <html lang="en">
+
+# ---------- Author: a nested mapping ----------
+author:  # no value on this line: its children are the indented lines below
+  name: Priya Sharma  # plain string, spaces are fine
+  email: priya@example.com  # "@" in the middle of a value is fine
+  location: Pune, India  # a comma inside a plain value is fine
+  available_for_hire: ___  # TODO(2): she is looking for work - write a boolean (true or false, no quotes)
+
+# ---------- Navigation menu: a list of maps ----------
+nav_links:  # the menu at the top of every page
+  - title: Home  # list item: the dash starts a new entry, and this entry is a small map
+    url: /  # same entry (lined up under "title"): link to the home page
+  - title: Projects  # second entry
+    url: /projects/  # page that lists her projects
+  - title: Blog  # third entry
+    url: /blog/  # page with her articles
+  - title: Contact  # fourth entry
+    url: ___  # TODO(3): the contact page lives at /contact/ (a slash at both ends, no quotes needed)
+
+# ---------- Social links ----------
+# TODO(4): add a "socials" list with 2 entries: GitHub and LinkedIn.
+#          Each entry has a name and a url. Copy the shape of nav_links above.
+
+# ---------- Theme ----------
+theme:  # colours and fonts used by the CSS
+  # Quoted: without quotes, "#" starts a comment and the value would be empty (null).
+  primary_color: "#6c5ce7"
+  accent_color: ___  # TODO(5): teal #00cec9 - wrap it in double quotes, same reason as above
+  font_family: Inter, sans-serif  # a CSS font list, stored as one plain string
+  dark_mode: ___  # TODO(6): switch dark mode on (a boolean)
+
+# Copyright line at the bottom of every page. Quoted because it contains ": ".
+footer_text: "© 2026 Priya Sharma. Status: open to work"

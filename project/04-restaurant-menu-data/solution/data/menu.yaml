@@ -1,0 +1,82 @@
+# =====================================================================
+# Project 04 · Restaurant Menu Data                      Level: ⭐
+# File: data/menu.yaml
+# Scenario: Spice Route Kitchen's website reads this file to show the menu.
+#           The owner edits prices and sold-out dishes here without touching any code.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# ---------- About the restaurant ----------
+restaurant:  # shown in the page header
+  name: Spice Route Kitchen  # plain string
+  tagline: Home-style Indian food since 2009  # plain string; the year inside is still part of the text
+  # DONE(1): add a "description" using ">" (folded text) with 2 lines of text.
+  #          The lines under ">" are the text itself, so they cannot carry comments.
+  description: >  # ">" joins the lines below into one paragraph, with spaces between them
+    A family-run kitchen serving North and South Indian classics,
+    cooked fresh every day with spices we grind ourselves.
+  # "|" (literal text) keeps every line break, which is right for a postal address.
+  address: |  # the two lines below stay two lines
+    12 MG Road, Indiranagar
+    Bengaluru 560038
+  phone: "+91 80 4123 4567"  # quoted so it always stays text: a phone number is not for maths
+  currency: INR  # prices below are in Indian rupees
+
+# ---------- Opening hours: a map of day -> time range ----------
+opening_hours:  # the website shows these in the footer
+  monday: null  # DONE(2): the restaurant is closed on Mondays - write null (no value)
+  # Quoted: times contain ":" and some YAML parsers turn a bare 11:00 into a number.
+  tuesday_to_friday: "11:00-23:00"
+  saturday: "10:00-23:30"  # opens earlier on the weekend
+  sunday: "10:00-22:00"  # closes earlier on Sunday
+
+# ---------- The menu: a list of categories, each with a list of dishes ----------
+categories:  # the order here is the order on the website
+  - name: Starters  # list item: the dash starts a new category
+    items:  # this category's dishes: a list inside a list item
+      - name: Paneer Tikka  # list item: one dish, a map with the keys below
+        price: 249  # DONE(3): 249 rupees - a number, so no quotes and no ₹ sign
+        veg: true  # boolean: vegetarian dish
+        spicy_level: 2  # number from 0 (mild) to 3 (very hot)
+        allergens: [dairy]  # flow list with one item
+        available: true  # boolean: can be ordered today
+      - name: Chicken 65  # second dish; "65" is part of the name, so the value is still text
+        price: 289  # number
+        veg: false  # DONE(4): chicken is not vegetarian - write a boolean
+        spicy_level: 3  # very hot
+        allergens: []  # empty list: no common allergens
+        available: true  # can be ordered today
+  - name: Main Course  # second category
+    items:  # dishes in this category
+      - name: Dal Makhani  # creamy black lentils
+        price: 229  # number
+        veg: true  # vegetarian
+        spicy_level: 1  # mild
+        allergens:  # block list: same as [dairy], but one item per line
+          - dairy  # list item
+        available: true  # can be ordered today
+      - name: Butter Chicken  # second dish in this category
+        price: 349  # number
+        veg: false  # not vegetarian
+        spicy_level: 1  # mild
+        allergens: [dairy, nuts]  # flow list with two items
+        available: false  # DONE(5): sold out today - write a boolean
+  # DONE(6): add a "Breads" category with one dish: Butter Naan, price 59, veg true,
+  #          spicy_level 0, allergens [gluten, dairy], available true. Copy the shape above.
+  - name: Breads  # third category
+    items:  # dishes in this category
+      - name: Butter Naan  # soft flatbread with butter
+        price: 59  # number
+        veg: true  # vegetarian
+        spicy_level: 0  # not spicy
+        allergens: [gluten, dairy]  # flow list with two items
+        available: true  # can be ordered today
+  - name: Desserts  # last category
+    items:  # dishes in this category
+      - name: Gulab Jamun  # milk dumplings in sugar syrup
+        price: 99  # number
+        veg: true  # vegetarian
+        spicy_level: 0  # not spicy
+        allergens: [dairy, gluten]  # flow list with two items
+        available: true  # can be ordered today

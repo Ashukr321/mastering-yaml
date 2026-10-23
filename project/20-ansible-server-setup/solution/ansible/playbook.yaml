@@ -1,0 +1,93 @@
+# =====================================================================
+# Project 20 · Ansible Server Setup                       Level: ⭐⭐⭐⭐
+# File: ansible/playbook.yaml
+# Scenario: Turn a fresh Ubuntu VM into a ready app server: packages, an app user, config,
+#           a systemd service and a firewall. Running it twice must change nothing the 2nd time.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Run with: ansible-playbook -i inventory.yaml playbook.yaml
+# A playbook is a LIST of plays. A play maps a group of hosts to a list of tasks.
+- name: Set up web servers for the shop Node.js app  # shown in the output when the play starts
+  hosts: web  # DONE(1): run this play on the web group from inventory.yaml
+  become: true  # DONE(2): use sudo for every task (installing packages needs root); a boolean
+  vars:  # play variables; use them as "{{ name }}" and ALWAYS quote a value that starts with {{
+    app_user: shop  # the Linux user that runs the app (never run apps as root)
+    app_dir: /opt/shop  # where the app lives on the server
+    service_name: shop  # the systemd service name
+    packages:  # apt packages to install
+      - nginx  # reverse proxy in front of Node
+      - nodejs  # the JavaScript runtime
+      - npm  # the Node package manager
+      - git  # to fetch the code
+  tasks:  # run top to bottom, on every host in the play at the same time
+    - name: Install system packages  # describe WHAT, not how
+      ansible.builtin.apt:  # always use the fully-qualified module name (namespace.collection.module)
+        name: "{{ packages }}"  # apt accepts a whole list at once, faster than a loop
+        state: present  # install if missing; do nothing if already there
+        update_cache: true  # run apt-get update first...
+        cache_valid_time: 3600  # ...but only if the cache is older than an hour
+      when: ansible_facts['distribution'] == 'Ubuntu'  # `when` is raw Jinja, so no {{ }} here
+    - name: Create the app user  # a dedicated account limits damage if the app is hacked
+      ansible.builtin.user:  # manages Linux users
+        name: "{{ app_user }}"  # DONE(3): the app_user variable, written as a quoted Jinja value
+        system: true  # a system account (no password, low UID)
+        shell: /usr/sbin/nologin  # nobody can log in as this user
+        create_home: false  # the app lives in app_dir, so no home folder is needed
+    - name: Create app folders  # one task, repeated for every item in `loop`
+      ansible.builtin.file:  # manages files, folders and permissions
+        path: "{{ item }}"  # `item` is the current loop value
+        state: directory  # make sure it is a folder
+        owner: "{{ app_user }}"  # owned by the app user
+        mode: "0755"  # owner can write, everyone can read
+      loop:  # the values `item` takes, one per run
+        - "{{ app_dir }}"  # the app root
+        - "{{ app_dir }}/shared"  # files kept between releases
+    - name: Copy the environment file  # app settings and secrets for the Node process
+      ansible.builtin.copy:  # copies a file from the control machine (files/) to the server
+        src: files/shop.env  # path next to this playbook
+        dest: "{{ app_dir }}/shared/.env"  # where it goes on the server
+        owner: "{{ app_user }}"  # only the app user owns it
+        # always QUOTE file modes: a bare 0600 can be read as a number and set the wrong permissions
+        mode: "0600"  # DONE(4): owner read/write only, as the quoted string 0600
+      notify: Restart shop  # DONE(5): when this task CHANGES something, call the handler named Restart shop
+    - name: Install the systemd unit  # tells Linux how to start, stop and restart the app
+      ansible.builtin.template:  # like copy, but fills in {{ variables }} inside the file first
+        src: templates/shop.service.j2  # a Jinja2 template next to this playbook
+        dest: "/etc/systemd/system/{{ service_name }}.service"  # where systemd looks for units
+        mode: "0644"  # readable by everyone, writable by root
+      notify:  # handlers to call if the unit file changed (they run in the order defined below)
+        - Reload systemd  # systemd must re-read changed unit files...
+        - Restart shop  # ...before the app is restarted
+    - name: Start the app and enable it at boot  # makes sure it is running now and after a reboot
+      ansible.builtin.systemd:  # manages systemd services
+        name: "{{ service_name }}"  # which service
+        state: started  # start it if it isn't running
+        enabled: true  # start automatically on boot
+    - name: Allow SSH and web traffic through the firewall  # open only the ports we need
+      community.general.ufw:  # module from the community.general collection
+        rule: allow  # allow (not deny) matching traffic
+        port: "{{ item }}"  # the current port from the loop
+        proto: tcp  # TCP traffic only
+      loop:  # ports as strings, because ufw expects text
+        - "22"  # SSH, opened first so we don't lock ourselves out
+        - "80"  # HTTP
+        - "443"  # HTTPS
+      # the `| bool` filter turns "true"/"yes" strings into a real boolean
+      when: enable_firewall | bool  # DONE(6): only when the inventory var enable_firewall is true (use | bool)
+    - name: Turn the firewall on  # default deny, so only the ports above are open
+      community.general.ufw:  # same module, different settings
+        state: enabled  # switch ufw on
+        policy: deny  # block everything not allowed above
+      when: enable_firewall | bool  # same condition as the task above
+  handlers:  # tasks that run ONLY when notified, once, at the end of the play, in the order DEFINED here
+    # DONE(7): add a handler named Reload systemd that uses ansible.builtin.systemd with
+    #          daemon_reload true (put it first, so systemd re-reads the unit before the restart)
+    - name: Reload systemd  # must match the notify text exactly
+      ansible.builtin.systemd:  # manages systemd itself too
+        daemon_reload: true  # same as `systemctl daemon-reload`
+    - name: Restart shop  # notified when the .env file or the unit file changes
+      ansible.builtin.systemd:  # manages systemd services
+        name: "{{ service_name }}"  # which service
+        state: restarted  # stop then start, so new config is loaded

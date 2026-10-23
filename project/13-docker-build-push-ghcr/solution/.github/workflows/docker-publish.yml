@@ -1,0 +1,74 @@
+# =====================================================================
+# Project 13 · Build and Push a Docker Image to GHCR       Level: ⭐⭐⭐
+# File: .github/workflows/docker-publish.yml
+# Scenario: The payments team releases its API by pushing a git tag like v1.4.0.
+#           The tag must build a Docker image and publish it to ghcr.io automatically.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# The name shown in the GitHub "Actions" tab.
+name: Publish Docker image
+
+# Events that start this workflow.
+on:
+  # Pushing a tag is also a "push" event.
+  push:
+    # Only tags matching this glob, e.g. v1.4.0 (not branch pushes).
+    tags:
+      - "v*.*.*"  # DONE(1): quoted so the glob stays plain text (a leading * would be YAML alias syntax)
+  # Adds a "Run workflow" button so you can re-run a release by hand.
+  workflow_dispatch:
+
+# What the automatic GITHUB_TOKEN may do. Anything not listed is "none".
+permissions:
+  contents: read  # check out the code
+  packages: write  # DONE(2): push images to GitHub Container Registry
+
+# Workflow-level variables, reused below as ${{ env.NAME }}.
+env:
+  REGISTRY: ghcr.io  # DONE(3): GitHub Container Registry host
+  # ${{ }} is GitHub expression syntax; github.repository is "owner/repo".
+  IMAGE_NAME: ${{ github.repository }}  # image path inside the registry
+
+jobs:
+  # Job id; one job is enough for build + push.
+  build-and-push:
+    name: Build and push image  # friendly name in the UI
+    runs-on: ubuntu-latest  # GitHub-hosted Linux VM with Docker installed
+    timeout-minutes: 30  # image builds can be slow, but never this slow
+    steps:
+      - name: Check out code  # Docker needs the Dockerfile and source
+        uses: actions/checkout@v4  # official checkout action
+      - name: Set up Docker Buildx  # BuildKit builder: faster builds, cache export
+        uses: docker/setup-buildx-action@v3  # DONE(4): official Buildx setup action
+      - name: Log in to GHCR  # so the push step is allowed to upload
+        uses: docker/login-action@v3  # runs "docker login" for us
+        with:
+          registry: ${{ env.REGISTRY }}  # ghcr.io, from the env block above
+          username: ${{ github.actor }}  # the user or bot that triggered the run
+          # GITHUB_TOKEN is created per run; permissions above let it write packages.
+          password: ${{ secrets.GITHUB_TOKEN }}  # DONE(5): never paste a real password here
+      - name: Extract image metadata  # turns the git tag into Docker tags and labels
+        id: meta  # DONE(6): an id lets later steps read this step's outputs
+        uses: docker/metadata-action@v5  # official metadata action
+        with:
+          # Full image name; metadata-action lowercases it (registries need lowercase).
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}  # DONE(7): registry/owner/repo
+          # "|" keeps each rule on its own line. {{ }} here is metadata-action syntax.
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+      - name: Build and push  # build the image once, then upload every tag
+        uses: docker/build-push-action@v6  # official build + push action
+        with:
+          context: .  # build context: the repo root
+          file: ./Dockerfile  # which Dockerfile to use
+          push: true  # DONE(8): upload to the registry (false = build only)
+          tags: ${{ steps.meta.outputs.tags }}  # DONE(9): tags made by the "meta" step
+          labels: ${{ steps.meta.outputs.labels }}  # OCI labels: source repo, version, created date
+          # DONE(10): reuse layers from earlier runs via the GitHub Actions cache.
+          cache-from: type=gha  # read cached layers
+          cache-to: type=gha,mode=max  # write all layers back (max = include build stages too)

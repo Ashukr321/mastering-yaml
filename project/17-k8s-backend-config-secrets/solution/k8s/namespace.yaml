@@ -1,0 +1,23 @@
+# =====================================================================
+# Project 17 · K8s Backend Config & Secrets               Level: ⭐⭐⭐⭐
+# File: k8s/namespace.yaml
+# Scenario: The backend team moves the Node.js shop API onto the shared cluster and
+#           wants its own space, so its objects never clash with other teams' objects.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Namespaces are part of the core API group, written as just "v1"
+apiVersion: v1
+# a Namespace is a folder for Kubernetes objects; names only need to be unique inside it
+kind: Namespace
+metadata:  # information that identifies this object
+  # every other file in this project says `namespace: shop`, so the names must match exactly
+  name: shop  # DONE(1): name the namespace shop (lowercase letters, digits and dashes only)
+  labels:  # tags on the namespace; tools and policies select namespaces by label
+    app.kubernetes.io/part-of: shop  # a well-known label key: this namespace belongs to the shop system
+    team: backend  # who to call when something in here breaks
+    # Pod Security Admission: reject pods that ask for risky powers (host network, privileged, ...)
+    pod-security.kubernetes.io/enforce: baseline
+    # also print a warning for anything that breaks the stricter "restricted" rules
+    pod-security.kubernetes.io/warn: restricted

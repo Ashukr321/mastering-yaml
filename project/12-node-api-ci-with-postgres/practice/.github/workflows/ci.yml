@@ -1,0 +1,92 @@
+# =====================================================================
+# Project 12 · Node API CI with PostgreSQL                 Level: ⭐⭐⭐
+# File: .github/workflows/ci.yml
+# Scenario: A backend team runs an Express API on PostgreSQL. Integration tests
+#           need a real database, and the API must work on Node 20 and Node 22.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# The name shown in the GitHub "Actions" tab.
+name: API CI
+
+# Events that start this workflow.
+on:
+  # Pushes to main (after a merge).
+  push:
+    branches:
+      - main  # only the main branch
+  # Pull requests that want to merge into main.
+  pull_request:
+    branches:
+      - main  # only PRs targeting main
+
+# Read-only token: this workflow never writes to the repo.
+permissions:
+  contents: read  # enough to check out the code
+
+jobs:
+  # Job id "test"; the matrix below turns it into one run per Node version.
+  test:
+    # ${{ }} is GitHub expression syntax; matrix.node-version is this run's value.
+    name: Test on Node ${{ matrix.node-version }}  # e.g. "Test on Node 22" in the UI
+    runs-on: ubuntu-latest  # GitHub-hosted Linux VM (service containers need Linux)
+    timeout-minutes: ___  # TODO(1): stop a hung test run after 20 minutes (a number)
+    # A matrix runs the same job several times with different values.
+    strategy:
+      fail-fast: false  # let Node 22 finish even if Node 20 fails, so you see both results
+      matrix:
+        # Each value becomes its own job run.
+        node-version:
+          - "20"  # quoted so YAML keeps it as text
+          - ___  # TODO(2): add Node 22, quoted like the line above
+    # Service containers start before the steps and stop after the job.
+    services:
+      # "postgres" is the service id (and its hostname inside container jobs).
+      postgres:
+        image: ___  # TODO(3): official PostgreSQL 16 image from Docker Hub (name:tag)
+        # Variables the postgres image reads on first start.
+        env:
+          POSTGRES_USER: app  # database user to create
+          POSTGRES_PASSWORD: app_test_password  # throwaway CI-only password, not a real secret
+          POSTGRES_DB: app_test  # database to create
+        # Map container port 5432 to the runner, so localhost:5432 works in steps.
+        ports:
+          - ___  # TODO(4): map 5432 to 5432, quoted, or YAML 1.1 may read it as a number
+        # Extra "docker run" flags. ">-" folds these lines into one line of text.
+        # TODO(5): the health check makes GitHub wait until Postgres accepts connections.
+        #          Replace ___ with "pg_isready -U app -d app_test" (keep the double quotes).
+        options: >-
+          --health-cmd ___
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    # Job-level env: every step below can read these variables.
+    env:
+      NODE_ENV: test  # tell the app it is running tests
+      # TODO(6): quoted so the colons and @ stay plain text. Format: user:password@host:port/db
+      #          Build it from the postgres env above, scheme postgresql://, host localhost.
+      DATABASE_URL: ___  # used by app + migrations
+    steps:
+      - name: Check out code  # get the repo onto the runner
+        uses: actions/checkout@v4  # official checkout action
+      - name: Set up Node ${{ matrix.node-version }}  # step names can use expressions too
+        uses: actions/setup-node@v4  # installs the requested Node version
+        with:
+          node-version: ___  # TODO(7): the value for this matrix run -> ${{ matrix.node-version }}
+          cache: npm  # reuse the npm download cache between runs
+      - name: Install dependencies  # clean install from package-lock.json
+        run: npm ci  # fails if package.json and the lockfile disagree
+      # TODO(8): create the tables before the tests run.
+      #          Hint: a step named "Run database migrations" whose run: is npm run migrate
+      - name: Run tests with coverage  # unit + integration tests against the real DB
+        # "--" passes the next flag to the test runner instead of to npm.
+        run: ___  # TODO(9): npm test, plus "-- --coverage" so a report lands in coverage/
+      - name: Upload coverage report  # keep the report so the team can open it
+        # Only upload once; both matrix runs produce the same kind of report.
+        if: matrix.node-version == '22'  # single quotes are strings inside expressions
+        uses: actions/upload-artifact@v4  # store files with the workflow run
+        with:
+          name: coverage-node-${{ matrix.node-version }}  # unique artifact name
+          path: coverage/  # folder the test runner writes coverage into
+          retention-days: 7  # auto-delete after a week

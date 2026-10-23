@@ -1,0 +1,11 @@
+---
+# yamllint config used by CI (.github/workflows/lint.yml) and locally
+extends: default
+
+rules:
+  # long explanation comments are part of the lessons
+  line-length:
+    max: 120
+  # GitHub Actions uses the key "on:", which is not a boolean
+  truthy:
+    check-keys: false

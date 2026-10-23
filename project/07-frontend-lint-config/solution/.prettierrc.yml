@@ -1,0 +1,29 @@
+# =====================================================================
+# Project 07 · Frontend Lint Config                      Level: ⭐⭐
+# File: .prettierrc.yml
+# Scenario: The same storefront team lets Prettier own formatting, so ESLint only has to
+#           look for bugs. This file is the team's shared formatting style.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+printWidth: 100  # wrap lines longer than 100 characters
+tabWidth: 2  # indent with 2 spaces per level
+useTabs: false  # spaces, never tab characters
+semi: true  # end every statement with a semicolon
+singleQuote: true  # DONE(7): use 'single quotes' in JS/TS (a boolean)
+jsxSingleQuote: false  # JSX attributes keep "double quotes", like HTML
+trailingComma: all  # add a comma after the last item, so diffs stay small
+bracketSpacing: true  # print { a: 1 } instead of {a: 1}
+arrowParens: always  # always write (x) => x, even with one argument
+endOfLine: lf  # Unix line endings on every OS
+
+# overrides: different options for files that match a pattern
+overrides:
+  # DONE(8): add an override for files ["*.yml", "*.yaml"] with option singleQuote false
+  - files: ["*.yml", "*.yaml"]  # a flow list of two quoted patterns
+    options:  # options used only for YAML files
+      singleQuote: false  # keep "double quotes" in YAML
+  - files: "*.md"  # quoted because a plain value cannot start with *
+    options:  # options used only for Markdown files
+      proseWrap: always  # wrap long text lines at printWidth

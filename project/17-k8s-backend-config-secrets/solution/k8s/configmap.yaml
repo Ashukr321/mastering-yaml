@@ -1,0 +1,43 @@
+# =====================================================================
+# Project 17 · K8s Backend Config & Secrets               Level: ⭐⭐⭐⭐
+# File: k8s/configmap.yaml
+# Scenario: The API reads plain settings from environment variables and feature flags from
+#           a JSON file. Keep both outside the image so one image runs in every environment.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+apiVersion: v1  # ConfigMaps are in the core API group
+kind: ConfigMap  # holds NON-secret settings as key/value pairs
+metadata:  # information that identifies this object
+  name: shop-api-config  # the Deployment refers to this exact name
+  namespace: shop  # must be the same namespace as the pods that use it
+  labels:  # tags for finding related objects
+    app: shop-api  # belongs to the shop API
+# every value under `data` must be a STRING; a bare number or boolean is rejected by the API server
+data:
+  # each key below becomes an environment variable via `envFrom` in deployment.yaml
+  NODE_ENV: production  # tells Node.js libraries to run in production mode
+  PORT: "3000"  # DONE(1): the port 3000, quoted, because ConfigMap values must be strings
+  LOG_LEVEL: info  # how chatty the logs are: debug, info, warn or error
+  # the in-cluster DNS name of the database Service: <service>.<namespace>.svc.cluster.local
+  DB_HOST: postgres.shop.svc.cluster.local
+  DB_PORT: "5432"  # quoted for the same reason as PORT
+  DB_NAME: shop  # the database to connect to
+  FEATURE_NEW_CHECKOUT: "true"  # DONE(2): the text true; quote it, or YAML turns it into a boolean
+  # DONE(3): add a key app.json whose value is a multi-line JSON document, using the literal block
+  #          scalar `|` (it keeps every newline). Put name "shop-api", currency "USD",
+  #          maxCartItems 50 and a featureFlags object with newCheckout true and reviews false.
+  # `|` keeps the text below exactly as written, newlines included; it ends where the indent ends.
+  # Lines inside the block are file content, not YAML, so comments can't go in there.
+  # The Deployment mounts this key as the file /app/config/app.json.
+  app.json: |
+    {
+      "name": "shop-api",
+      "currency": "USD",
+      "maxCartItems": 50,
+      "featureFlags": {
+        "newCheckout": true,
+        "reviews": false
+      }
+    }

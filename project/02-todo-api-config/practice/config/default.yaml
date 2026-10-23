@@ -1,0 +1,51 @@
+# =====================================================================
+# Project 02 · Todo API Config                           Level: ⭐
+# File: config/default.yaml
+# Scenario: A small startup team runs a Node/Express todo REST API.
+#           The "config" npm package loads this file when the server starts.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# ---------- HTTP server ----------
+server:  # settings for the Express app itself
+  host: "0.0.0.0"  # quoted text: listen on every network card (an IP address is text, not a number)
+  port: ___  # TODO(1): the API listens on port 4000 (a number, no quotes)
+  api_prefix: /api/v1  # every route starts with this path, e.g. /api/v1/todos
+
+# ---------- Database (PostgreSQL) ----------
+database:  # where the todos are stored
+  client: postgres  # which database driver to load
+  host: localhost  # the database runs on the same machine in development
+  port: 5432  # PostgreSQL's default port, a number
+  name: ___  # TODO(2): the database is called todo_db (plain text, no quotes needed)
+  user: todo_app  # the database login name
+  password: null  # null = "no value here"; the real password comes from the DB_PASSWORD env variable
+  ssl: false  # boolean: a local database does not need SSL
+  pool:  # a nested map: how many database connections to keep ready
+    min: 2  # always keep at least 2 connections open
+    max: ___  # TODO(3): allow at most 10 connections at once (a number)
+
+# ---------- Logging ----------
+logging:  # what the server prints to the console
+  level: ___  # TODO(4): one of error, warn, info, debug - pick info (plain text)
+  pretty: true  # boolean: colourful, readable logs for humans in development
+
+# ---------- CORS: which websites may call this API from the browser ----------
+cors:  # Cross-Origin Resource Sharing settings
+  allowed_origins:  # a block list: one origin per line, each line starts with "- "
+    - "http://localhost:3000"  # list item: the React dev server. URLs are quoted to be safe
+    - "https://todo.example.com"  # list item: the live website
+    # TODO(5): add a third origin for the admin panel: https://admin.todo.example.com (quoted)
+  allowed_methods: [GET, POST, PUT, DELETE]  # a flow list: same as a block list, written on one line
+  credentials: true  # boolean: allow cookies to be sent with requests
+
+# ---------- Rate limiting ----------
+# TODO(6): add a "rate_limit" map with window_minutes: 15 and max_requests: 100 (both numbers)
+
+# ---------- Auth (JSON Web Tokens) ----------
+jwt:  # login tokens
+  # Quoted text: the jsonwebtoken library reads "1h" as "one hour".
+  expires_in: "1h"
+  issuer: todo-api  # who created the token, a plain string
+  secret: null  # null on purpose: never commit secrets, set JWT_SECRET in the environment instead

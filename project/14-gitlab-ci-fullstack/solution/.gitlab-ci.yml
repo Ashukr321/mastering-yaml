@@ -1,0 +1,125 @@
+# =====================================================================
+# Project 14 · GitLab CI for a Full-stack Monorepo         Level: ⭐⭐⭐
+# File: .gitlab-ci.yml
+# Scenario: One GitLab repo holds a React frontend/ and a Node backend/. CI must
+#           only test the folder that changed, and production deploys need a click.
+# Solution: every TODO is answered and marked DONE(n).
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Stages run in this order; jobs in the same stage run in parallel.
+stages:
+  - install  # npm ci
+  - test  # lint + unit tests
+  - build  # DONE(1): production bundles
+  - deploy  # ship to servers
+
+# Settings every job gets unless it overrides them.
+default:
+  image: node:20-alpine  # DONE(2): small Docker image with Node 20 and npm
+  interruptible: true  # a newer pipeline on the same branch may cancel this one
+
+# Global variables, visible to every job's script as $NAME.
+variables:
+  # Keep npm's download cache inside the project folder, so GitLab can cache it.
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"  # quoted: the value starts with $
+
+# Names starting with "." are hidden jobs: never run, only reused via extends:.
+.node_template:
+  # Runs before every script line; $APP_DIR is set by .frontend or .backend.
+  before_script:
+    - cd "$APP_DIR"  # quoted shell argument, in case the path has spaces
+  cache:
+    # A new cache is made only when a lockfile changes (max 2 files here).
+    key:
+      files:
+        - frontend/package-lock.json  # frontend dependencies
+        - backend/package-lock.json  # DONE(3): backend dependencies
+    paths:
+      - .npm/  # the npm download cache from the variable above
+    policy: pull  # most jobs only read the cache; install jobs also write it
+
+# Hidden job with the frontend's folder and change rules.
+.frontend:
+  variables:
+    APP_DIR: frontend  # used by before_script in .node_template
+  rules:
+    # Add the job only when something in frontend/ changed.
+    - changes:
+        - "frontend/**/*"  # quoted: globs with * are safest as text
+
+# Same idea for the backend.
+.backend:
+  variables:
+    APP_DIR: backend  # folder for the API
+  rules:
+    - changes:
+        - "backend/**/*"  # DONE(4): any file in backend/
+
+install-frontend:
+  stage: install  # first stage
+  # extends: merges these hidden jobs into this one (later ones win on conflicts).
+  extends:
+    - .node_template  # shared before_script + cache
+    - .frontend  # APP_DIR + rules
+  cache:
+    policy: pull-push  # merged into the template's cache: read, then upload updates
+  script:
+    - npm ci --prefer-offline  # install from the lockfile, using the cache when possible
+  artifacts:
+    paths:
+      - frontend/node_modules/  # hand installed packages to later jobs
+    expire_in: 1 hour  # DONE(5): temporary files, delete them soon
+
+test-frontend:
+  stage: test  # runs after install
+  extends:
+    - .node_template  # same setup as install
+    - .frontend  # same rules: skipped if frontend/ did not change
+  needs:
+    - install-frontend  # DONE(6): start as soon as this job ends and download its artifacts
+  script:
+    - npm run lint  # style and bug checks
+    - npm test  # unit tests
+
+build-frontend:
+  stage: build  # after tests pass
+  extends:
+    - .node_template  # shared setup
+    - .frontend  # frontend rules
+  needs:
+    - install-frontend  # reuse node_modules
+    - test-frontend  # never build untested code
+  # DONE(7): keep the built site for the deploy job.
+  artifacts:
+    paths:
+      - frontend/dist/  # the production bundle
+    expire_in: 1 week  # long enough to roll back to a recent build
+  script:
+    - npm run build  # writes frontend/dist/
+
+test-backend:
+  stage: test  # backend has no build step, so it installs and tests in one job
+  extends:
+    - .node_template  # shared setup
+    - .backend  # backend rules
+  script:
+    - npm ci --prefer-offline  # install dependencies
+    - npm test  # API unit tests
+
+deploy-production:
+  stage: deploy  # last stage
+  image: alpine:3.20  # overrides default; deploying needs no Node
+  needs:
+    - job: build-frontend  # download frontend/dist/
+      optional: true  # do not fail if build-frontend was skipped by its rules
+  script:
+    - ./scripts/deploy.sh production  # your own deploy script, kept in the repo
+  # GitLab tracks deployments per environment (Operate > Environments).
+  environment:
+    name: production  # DONE(8): environment name shown in GitLab
+    url: https://app.example.com  # "View deployment" link
+  rules:
+    # Single quotes keep the whole expression as one string.
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'  # only on main
+      when: manual  # DONE(9): wait for someone to press the play button

@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-label="Mastering YAML - 01 Syntax Fundamentals">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0" gradientUnits="objectBoundingBox" spreadMethod="reflect">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="0.5" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#f472b6"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="-1 0;1 0;-1 0" dur="6s" repeatCount="indefinite"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity="0.04"/>
+    </pattern>
+  </defs>
+
+  <style>
+    text { white-space: pre; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; }
+    .sans { font-family: 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif; }
+
+    .orb { animation: float 7s ease-in-out infinite; }
+    .orb.b { animation-duration: 9s; animation-delay: -3s; }
+    .orb.c { animation-duration: 11s; animation-delay: -5s; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-18px); } }
+
+    .rise { animation: rise 1s ease-out both; }
+    .d1 { animation-delay: .15s; } .d2 { animation-delay: .3s; } .d3 { animation-delay: .45s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    .chip { animation: pulse 4s ease-in-out infinite; }
+    .chip:nth-of-type(2) { animation-delay: 1s; }
+    .chip:nth-of-type(3) { animation-delay: 2s; }
+    .chip:nth-of-type(4) { animation-delay: 3s; }
+    @keyframes pulse { 0%, 70%, 100% { opacity: .55; } 15% { opacity: 1; } }
+
+    /* "typing" loop: each line fades in, holds, then all reset together */
+    .ln { animation: type 9s steps(1, end) infinite both; opacity: 0; }
+    .l1 { animation-name: t1; } .l2 { animation-name: t2; } .l3 { animation-name: t3; }
+    .l4 { animation-name: t4; } .l5 { animation-name: t5; } .l6 { animation-name: t6; }
+    .l7 { animation-name: t7; } .l8 { animation-name: t8; } .l9 { animation-name: t9; }
+    @keyframes t1 { 0%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t2 { 0%, 6%   { opacity: 0; } 6.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t3 { 0%, 12%  { opacity: 0; } 12.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t4 { 0%, 18%  { opacity: 0; } 18.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t5 { 0%, 24%  { opacity: 0; } 24.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t6 { 0%, 30%  { opacity: 0; } 30.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t7 { 0%, 36%  { opacity: 0; } 36.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t8 { 0%, 42%  { opacity: 0; } 42.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+    @keyframes t9 { 0%, 48%  { opacity: 0; } 48.01%, 92% { opacity: 1; } 92.01%, 100% { opacity: 0; } }
+
+    .cursor { animation: blink 1s steps(1, end) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .k { fill: #7dd3fc; } .s { fill: #86efac; } .n { fill: #fca5a5; }
+    .b { fill: #c4b5fd; } .c { fill: #64748b; } .a { fill: #fbbf24; } .p { fill: #e2e8f0; }
+  </style>
+
+  <rect width="1200" height="360" rx="20" fill="url(#bg)"/>
+  <rect width="1200" height="360" rx="20" fill="url(#grid)"/>
+
+  <circle class="orb"   cx="120"  cy="300" r="70" fill="#38bdf8" opacity="0.10"/>
+  <circle class="orb b" cx="560"  cy="60"  r="50" fill="#a78bfa" opacity="0.12"/>
+  <circle class="orb c" cx="1120" cy="320" r="80" fill="#f472b6" opacity="0.08"/>
+
+  <!-- Left: title block -->
+  <g class="rise">
+    <rect x="60" y="56" width="236" height="30" rx="15" fill="#38bdf8" fill-opacity="0.12" stroke="#38bdf8" stroke-opacity="0.4"/>
+    <text x="178" y="76" text-anchor="middle" class="mono" font-size="13" fill="#7dd3fc" letter-spacing="2">MASTERING YAML · 01</text>
+  </g>
+  <text x="58" y="160" class="sans rise d1" font-size="78" font-weight="800" fill="url(#title)">YAML</text>
+  <text x="60" y="210" class="sans rise d2" font-size="40" font-weight="700" fill="#f8fafc">Syntax Fundamentals</text>
+  <text x="62" y="246" class="sans rise d3" font-size="17" fill="#94a3b8">YAML Ain't Markup Language — human-friendly data serialization</text>
+
+  <g class="mono" font-size="13">
+    <g class="chip"><rect x="60"  y="276" width="88"  height="28" rx="8" fill="#0ea5e9" fill-opacity="0.15"/><text x="104" y="295" text-anchor="middle" fill="#7dd3fc">Scalars</text></g>
+    <g class="chip"><rect x="158" y="276" width="96"  height="28" rx="8" fill="#22c55e" fill-opacity="0.15"/><text x="206" y="295" text-anchor="middle" fill="#86efac">Mappings</text></g>
+    <g class="chip"><rect x="264" y="276" width="104" height="28" rx="8" fill="#a855f7" fill-opacity="0.15"/><text x="316" y="295" text-anchor="middle" fill="#d8b4fe">Sequences</text></g>
+    <g class="chip"><rect x="378" y="276" width="140" height="28" rx="8" fill="#f59e0b" fill-opacity="0.15"/><text x="448" y="295" text-anchor="middle" fill="#fcd34d">Anchors &amp; Aliases</text></g>
+  </g>
+
+  <!-- Right: animated editor window -->
+  <g transform="translate(700 44)">
+    <rect width="440" height="272" rx="14" fill="#020617" fill-opacity="0.85" stroke="#334155"/>
+    <circle cx="22" cy="20" r="6" fill="#f87171"/>
+    <circle cx="42" cy="20" r="6" fill="#fbbf24"/>
+    <circle cx="62" cy="20" r="6" fill="#4ade80"/>
+    <text x="220" y="25" text-anchor="middle" class="mono" font-size="12" fill="#64748b">basic-types.yaml</text>
+    <line x1="0" y1="40" x2="440" y2="40" stroke="#1e293b"/>
+
+    <g class="mono" font-size="15" xml:space="preserve">
+      <text class="ln l1" x="24" y="70"><tspan class="c"># 01-syntax-fundamentals</tspan></text>
+      <text class="ln l2" x="24" y="94"><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="s">"mastering-yaml"</tspan></text>
+      <text class="ln l3" x="24" y="118"><tspan class="k">version</tspan><tspan class="p">: </tspan><tspan class="n">1.0</tspan></text>
+      <text class="ln l4" x="24" y="142"><tspan class="k">active</tspan><tspan class="p">: </tspan><tspan class="b">true</tspan></text>
+      <text class="ln l5" x="24" y="166"><tspan class="k">tools</tspan><tspan class="p">:</tspan></text>
+      <text class="ln l6" x="24" y="190"><tspan class="p">  - </tspan><tspan class="s">docker</tspan></text>
+      <text class="ln l7" x="24" y="214"><tspan class="p">  - </tspan><tspan class="s">kubernetes</tspan></text>
+      <text class="ln l8" x="24" y="238"><tspan class="k">defaults</tspan><tspan class="p">: </tspan><tspan class="a">&amp;base</tspan></text>
+      <text class="ln l9" x="24" y="262"><tspan class="p">  </tspan><tspan class="k">replicas</tspan><tspan class="p">: </tspan><tspan class="n">2</tspan><tspan class="cursor p">▌</tspan></text>
+    </g>
+  </g>
+</svg>

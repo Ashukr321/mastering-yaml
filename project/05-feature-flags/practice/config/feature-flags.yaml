@@ -1,0 +1,51 @@
+# =====================================================================
+# Project 05 · Feature Flags                             Level: ⭐
+# File: config/feature-flags.yaml
+# Scenario: TaskFlow, a project-management SaaS, ships risky features behind flags.
+#           The backend reads this file at startup to decide which users see which feature.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+schema_version: ___  # TODO(1): the version is 1.10 - quote it, or YAML turns it into the number 1.1
+default_environment: dev  # used when the APP_ENV variable is not set
+
+flags:  # one key per feature flag
+  new_dashboard:  # flag name: the code checks flags.new_dashboard
+    description: Redesigned analytics dashboard (beta)  # plain string, brackets ( ) are fine
+    enabled: true  # boolean: the flag is switched on
+    rollout_percentage: ___  # TODO(2): 25 percent of users see it - a number from 0 to 100, no % sign
+    allowed_roles:  # only users with these roles can see the feature
+      - admin  # list item
+      - beta_tester  # list item
+    owner: ___  # TODO(3): the team @growth-team - quote it, YAML reserves a leading @
+    overrides:  # per-environment values that win over the ones above
+      dev:  # local development
+        rollout_percentage: 100  # every developer sees it
+      # TODO(4): add a "staging" override with rollout_percentage: 50
+      prod:  # real customers
+        enabled: false  # switched off in production for now
+
+  dark_mode:  # second flag
+    description: Dark colour theme for the web app  # plain string
+    enabled: false  # boolean: switched off
+    rollout_percentage: 0  # nobody gets it right now
+    allowed_roles: []  # empty list: no roles yet
+    owner: "@web-team"  # quoted because it starts with @
+    # Quoted: the text contains ": " and " #", both special in YAML.
+    kill_switch_reason: "Contrast bugs: see ticket #482"
+    overrides:  # per-environment values
+      dev:  # developers can still try it
+        enabled: true  # switched on only in dev
+
+  bulk_export:  # third flag
+    description: Export all tasks to a CSV file  # plain string
+    enabled: true  # boolean: switched on
+    rollout_percentage: 100  # everyone with an allowed role
+    allowed_roles: [admin, owner]  # flow list: two roles on one line
+    owner: "@data-team"  # quoted because it starts with @
+    kill_switch_reason: ___  # TODO(5): nothing is wrong with this flag - write null (no value)
+    # Country codes where export is blocked. "NO" is Norway: unquoted, old YAML parsers read NO as false!
+    blocked_countries:
+      - "KP"  # list item: North Korea, quoted to match the line below
+      - ___  # TODO(6): add Norway's code NO - it MUST be quoted, see the note above

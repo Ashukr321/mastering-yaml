@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="590" viewBox="0 0 1000 590" role="img" aria-label="Real-world YAML use case: a docker-compose.yml file that starts a React, Node.js and MongoDB stack">
+  <style>
+    text { white-space: pre; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; }
+    .sans { font-family: 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif; }
+    .k { fill: #7dd3fc; } .p { fill: #e2e8f0; } .s { fill: #86efac; } .c { fill: #64748b; } .n { fill: #fca5a5; }
+    .web { fill: #38bdf8; } .api { fill: #4ade80; } .db { fill: #fbbf24; }
+
+    .flow { stroke-dasharray: 6 6; animation: flow .8s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -12; } }
+
+    .dot { animation: blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .3; } }
+
+    .cursor { animation: cur 1s steps(1, end) infinite; }
+    @keyframes cur { 50% { opacity: 0; } }
+
+    /* terminal output + containers boot in order, 8s loop */
+    .out  { animation: out 8s steps(1, end) infinite both; }
+    @keyframes out { 0%, 12% { opacity: 0; } 12.01%, 100% { opacity: 1; } }
+    .boot { animation: boot 8s ease-out infinite both; }
+    @keyframes boot { 0%, 100% { stroke-opacity: .35; } 4%, 12% { stroke-opacity: 1; } 20% { stroke-opacity: .35; } }
+    .b1 { animation-delay: 1.2s; } .b2 { animation-delay: 1.8s; } .b3 { animation-delay: 2.4s; }
+  </style>
+
+  <rect width="1000" height="590" rx="18" fill="#0f172a"/>
+  <text x="32" y="44" class="sans" font-size="24" font-weight="800" fill="#f8fafc">Real-world use case: Docker Compose</text>
+  <text x="32" y="68" class="sans" font-size="13" fill="#94a3b8">One YAML file describes a whole app stack. One command runs it.</text>
+
+  <!-- left: the YAML file -->
+  <rect x="24" y="88" width="500" height="448" rx="12" fill="#020617" stroke="#1e293b"/>
+  <circle cx="44" cy="106" r="5" fill="#f87171"/><circle cx="60" cy="106" r="5" fill="#fbbf24"/><circle cx="76" cy="106" r="5" fill="#4ade80"/>
+  <text x="274" y="110" text-anchor="middle" class="mono" font-size="12" fill="#64748b">docker-compose.yml</text>
+  <line x1="24" y1="120" x2="524" y2="120" stroke="#1e293b"/>
+
+  <g class="mono" font-size="13">
+    <text x="44" y="144"><tspan class="k">services</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="163"><tspan class="p">  </tspan><tspan class="web" font-weight="700">web</tspan><tspan class="p">:</tspan>                      <tspan class="c"># React frontend</tspan></text>
+    <text x="44" y="182"><tspan class="p">    </tspan><tspan class="k">image</tspan><tspan class="p">: </tspan><tspan class="s">node:20-alpine</tspan></text>
+    <text x="44" y="201"><tspan class="p">    </tspan><tspan class="k">ports</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="220"><tspan class="p">      - </tspan><tspan class="s">"3000:3000"</tspan></text>
+    <text x="44" y="239"><tspan class="p">    </tspan><tspan class="k">depends_on</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="258"><tspan class="p">      - </tspan><tspan class="s">api</tspan></text>
+    <text x="44" y="277"><tspan class="p">  </tspan><tspan class="api" font-weight="700">api</tspan><tspan class="p">:</tspan>                      <tspan class="c"># Node.js backend</tspan></text>
+    <text x="44" y="296"><tspan class="p">    </tspan><tspan class="k">build</tspan><tspan class="p">: </tspan><tspan class="s">./api</tspan></text>
+    <text x="44" y="315"><tspan class="p">    </tspan><tspan class="k">ports</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="334"><tspan class="p">      - </tspan><tspan class="s">"5000:5000"</tspan></text>
+    <text x="44" y="353"><tspan class="p">    </tspan><tspan class="k">environment</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="372"><tspan class="p">      </tspan><tspan class="k">MONGO_URL</tspan><tspan class="p">: </tspan><tspan class="s">mongodb://db:27017/app</tspan></text>
+    <text x="44" y="391"><tspan class="p">    </tspan><tspan class="k">depends_on</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="410"><tspan class="p">      - </tspan><tspan class="s">db</tspan></text>
+    <text x="44" y="429"><tspan class="p">  </tspan><tspan class="db" font-weight="700">db</tspan><tspan class="p">:</tspan>                       <tspan class="c"># MongoDB database</tspan></text>
+    <text x="44" y="448"><tspan class="p">    </tspan><tspan class="k">image</tspan><tspan class="p">: </tspan><tspan class="s">mongo:7</tspan></text>
+    <text x="44" y="467"><tspan class="p">    </tspan><tspan class="k">volumes</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="486"><tspan class="p">      - </tspan><tspan class="s">db-data:/data/db</tspan></text>
+    <text x="44" y="505"><tspan class="k">volumes</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="524"><tspan class="p">  </tspan><tspan class="k">db-data</tspan><tspan class="p">:</tspan></text>
+  </g>
+
+  <!-- arrow from file to result -->
+  <path d="M528 300 H548" stroke="#a78bfa" stroke-width="2" class="flow"/>
+  <path d="M546 294 L554 300 L546 306" fill="none" stroke="#a78bfa" stroke-width="2"/>
+
+  <!-- right: terminal -->
+  <rect x="560" y="88" width="416" height="62" rx="10" fill="#020617" stroke="#334155"/>
+  <g class="mono" font-size="13">
+    <text x="576" y="112"><tspan fill="#a78bfa">$ </tspan><tspan class="p">docker compose up -d</tspan><tspan class="cursor p">▌</tspan></text>
+    <text x="576" y="136" class="out" fill="#4ade80">✔ 3 containers started</text>
+  </g>
+
+  <!-- browser -->
+  <rect x="686" y="170" width="164" height="30" rx="15" fill="#1e293b" stroke="#475569"/>
+  <text x="768" y="190" text-anchor="middle" class="sans" font-size="13" fill="#e2e8f0">🌐  localhost:3000</text>
+  <path d="M768 200 V222" stroke="#38bdf8" stroke-width="2" class="flow"/>
+
+  <!-- containers -->
+  <g class="sans">
+    <rect class="boot b1" x="588" y="222" width="360" height="62" rx="12" fill="#082f49" stroke="#38bdf8" stroke-width="2"/>
+    <text x="608" y="248" font-size="15" font-weight="700" fill="#7dd3fc">web</text>
+    <text x="608" y="270" font-size="12" fill="#94a3b8">React frontend · port 3000</text>
+    <circle class="dot" cx="852" cy="253" r="5" fill="#4ade80"/>
+    <text x="864" y="257" font-size="12" fill="#4ade80">running</text>
+
+    <path d="M768 284 V312" stroke="#4ade80" stroke-width="2" class="flow"/>
+
+    <rect class="boot b2" x="588" y="312" width="360" height="62" rx="12" fill="#052e16" stroke="#4ade80" stroke-width="2"/>
+    <text x="608" y="338" font-size="15" font-weight="700" fill="#86efac">api</text>
+    <text x="608" y="360" font-size="12" fill="#94a3b8">Node.js backend · port 5000</text>
+    <circle class="dot" cx="852" cy="343" r="5" fill="#4ade80"/>
+    <text x="864" y="347" font-size="12" fill="#4ade80">running</text>
+
+    <path d="M768 374 V402" stroke="#fbbf24" stroke-width="2" class="flow"/>
+
+    <rect class="boot b3" x="588" y="402" width="250" height="62" rx="12" fill="#451a03" stroke="#fbbf24" stroke-width="2"/>
+    <text x="608" y="428" font-size="15" font-weight="700" fill="#fcd34d">db</text>
+    <text x="608" y="450" font-size="12" fill="#94a3b8">MongoDB · port 27017</text>
+    <circle class="dot" cx="760" cy="433" r="5" fill="#4ade80"/>
+    <text x="772" y="437" font-size="12" fill="#4ade80">running</text>
+
+    <path d="M838 433 H858" stroke="#94a3b8" stroke-width="2" class="flow"/>
+    <!-- volume (disk) -->
+    <ellipse cx="903" cy="414" rx="40" ry="9" fill="#1e293b" stroke="#94a3b8"/>
+    <path d="M863 414 V452 A40 9 0 0 0 943 452 V414" fill="#1e293b" stroke="#94a3b8"/>
+    <text x="903" y="440" text-anchor="middle" font-size="12" fill="#cbd5e1">db-data</text>
+
+    <text x="768" y="500" text-anchor="middle" font-size="12" fill="#64748b">Docker reads the YAML and builds this for you</text>
+  </g>
+
+  <!-- footer: YAML concepts used -->
+  <g class="sans" font-size="12">
+    <text x="32" y="566" fill="#94a3b8" font-weight="700">YAML used here:</text>
+    <rect x="136" y="550" width="152" height="24" rx="7" fill="#7dd3fc" fill-opacity=".12"/><text x="212" y="566" text-anchor="middle" fill="#7dd3fc">services → mapping</text>
+    <rect x="298" y="550" width="140" height="24" rx="7" fill="#86efac" fill-opacity=".12"/><text x="368" y="566" text-anchor="middle" fill="#86efac">ports → sequence</text>
+    <rect x="448" y="550" width="184" height="24" rx="7" fill="#c4b5fd" fill-opacity=".12"/><text x="540" y="566" text-anchor="middle" fill="#c4b5fd">environment → nested map</text>
+    <rect x="642" y="550" width="334" height="24" rx="7" fill="#fbbf24" fill-opacity=".12"/><text x="809" y="566" text-anchor="middle" fill="#fcd34d">"3000:3000" quoted → stays a string, not a number</text>
+  </g>
+</svg>

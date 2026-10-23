@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="440" viewBox="0 0 1000 440" role="img" aria-label="Anatomy of a YAML document with labelled key terms">
+  <style>
+    text { white-space: pre; }
+    .mono { font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; }
+    .sans { font-family: 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif; }
+    .k { fill: #7dd3fc; } .s { fill: #86efac; } .n { fill: #fca5a5; }
+    .b { fill: #c4b5fd; } .c { fill: #64748b; } .a { fill: #fbbf24; } .p { fill: #e2e8f0; }
+
+    /* spotlight walks down the labels one by one (10 labels x 1.2s = 12s loop) */
+    .tag { animation: spot 12s ease-in-out infinite both; opacity: .45; }
+    .tag rect { stroke: #475569; }
+    @keyframes spot {
+      0%, 14%, 100% { opacity: .45; transform: none; }
+      2%, 10% { opacity: 1; transform: translateX(-6px); }
+    }
+    .t1 { animation-delay: 0s; }    .t2 { animation-delay: 1.2s; } .t3 { animation-delay: 2.4s; }
+    .t4 { animation-delay: 3.6s; }  .t5 { animation-delay: 4.8s; } .t6 { animation-delay: 6s; }
+    .t7 { animation-delay: 7.2s; }  .t8 { animation-delay: 8.4s; } .t9 { animation-delay: 9.6s; }
+    .t10 { animation-delay: 10.8s; }
+
+    .wire { stroke-dasharray: 4 4; animation: flow 1.2s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -16; } }
+  </style>
+
+  <rect width="1000" height="440" rx="18" fill="#0f172a"/>
+  <text x="32" y="40" class="sans" font-size="20" font-weight="700" fill="#f8fafc">Anatomy of a YAML document</text>
+  <text x="32" y="62" class="sans" font-size="13" fill="#64748b">every highlighted term is explained in the Key Terminology table below</text>
+
+  <!-- code panel -->
+  <rect x="24" y="80" width="470" height="336" rx="12" fill="#020617" stroke="#1e293b"/>
+  <g class="mono" font-size="15" xml:space="preserve">
+    <text x="44" y="110"><tspan class="p">---</tspan></text>
+    <text x="44" y="136"><tspan class="c"># app settings</tspan></text>
+    <text x="44" y="162"><tspan class="k">base</tspan><tspan class="p">: </tspan><tspan class="a">&amp;defaults</tspan></text>
+    <text x="44" y="188"><tspan class="p">  </tspan><tspan class="k">name</tspan><tspan class="p">: </tspan><tspan class="s">"my-api"</tspan></text>
+    <text x="44" y="214"><tspan class="p">  </tspan><tspan class="k">port</tspan><tspan class="p">: </tspan><tspan class="n">8080</tspan></text>
+    <text x="44" y="240"><tspan class="p">  </tspan><tspan class="k">debug</tspan><tspan class="p">: </tspan><tspan class="b">false</tspan></text>
+    <text x="44" y="266"><tspan class="p">  </tspan><tspan class="k">tags</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="292"><tspan class="p">    - </tspan><tspan class="s">web</tspan></text>
+    <text x="44" y="318"><tspan class="k">prod</tspan><tspan class="p">:</tspan></text>
+    <text x="44" y="344"><tspan class="p">  </tspan><tspan class="k">&lt;&lt;</tspan><tspan class="p">: </tspan><tspan class="a">*defaults</tspan></text>
+    <text x="44" y="370"><tspan class="p">  </tspan><tspan class="k">notes</tspan><tspan class="p">: </tspan><tspan class="b">|</tspan></text>
+    <text x="44" y="396"><tspan class="s">    multi-line text</tspan></text>
+  </g>
+
+  <!-- wires from code to labels -->
+  <g stroke="#334155" stroke-width="1.5" fill="none" class="wire">
+    <path d="M90 105 H600"/>
+    <path d="M180 131 H600"/>
+    <path d="M200 157 H600"/>
+    <path d="M200 183 H600"/>
+    <path d="M200 209 H600"/>
+    <path d="M200 235 H600"/>
+    <path d="M150 261 H560 L600 274"/>
+    <path d="M200 339 H560 L600 314"/>
+    <path d="M150 365 H560 L600 354"/>
+    <path d="M232 391 H600"/>
+  </g>
+
+  <!-- labels -->
+  <g class="sans" font-size="14">
+    <g class="tag t1"><rect x="600" y="92"  width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="110" fill="#e2e8f0"><tspan font-weight="700">Document start</tspan>  <tspan fill="#94a3b8">--- begins a document</tspan></text></g>
+    <g class="tag t2"><rect x="600" y="118" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="136" fill="#64748b"><tspan font-weight="700">Comment</tspan>  <tspan fill="#94a3b8"># … ignored by parsers</tspan></text></g>
+    <g class="tag t3"><rect x="600" y="144" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="162" fill="#fbbf24"><tspan font-weight="700">Anchor</tspan>  <tspan fill="#94a3b8">&amp;name marks a node for reuse</tspan></text></g>
+    <g class="tag t4"><rect x="600" y="170" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="188" fill="#7dd3fc"><tspan font-weight="700">Key: Value</tspan>  <tspan fill="#94a3b8">pair inside a mapping</tspan></text></g>
+    <g class="tag t5"><rect x="600" y="196" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="214" fill="#fca5a5"><tspan font-weight="700">Scalar (int)</tspan>  <tspan fill="#94a3b8">single value, type inferred</tspan></text></g>
+    <g class="tag t6"><rect x="600" y="222" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="240" fill="#c4b5fd"><tspan font-weight="700">Scalar (bool)</tspan>  <tspan fill="#94a3b8">true / false</tspan></text></g>
+    <g class="tag t7"><rect x="600" y="262" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="280" fill="#86efac"><tspan font-weight="700">Sequence</tspan>  <tspan fill="#94a3b8">"- " items form a list</tspan></text></g>
+    <g class="tag t8"><rect x="600" y="302" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="320" fill="#fbbf24"><tspan font-weight="700">Alias + merge key</tspan>  <tspan fill="#94a3b8">&lt;&lt;: *name reuses it</tspan></text></g>
+    <g class="tag t9"><rect x="600" y="342" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="360" fill="#c4b5fd"><tspan font-weight="700">Block scalar</tspan>  <tspan fill="#94a3b8">| keeps newlines</tspan></text></g>
+    <g class="tag t10"><rect x="600" y="378" width="372" height="26" rx="7" fill="#1e293b"/><text x="614" y="396" fill="#e2e8f0"><tspan font-weight="700">Indentation</tspan>  <tspan fill="#94a3b8">spaces (never tabs) = nesting</tspan></text></g>
+  </g>
+</svg>

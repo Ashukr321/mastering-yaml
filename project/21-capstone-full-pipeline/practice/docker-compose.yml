@@ -1,0 +1,52 @@
+# =====================================================================
+# Project 21 · Capstone: Full CI/CD Pipeline              Level: ⭐⭐⭐⭐⭐
+# File: docker-compose.yml
+# Scenario: New developers should run the whole shop on their laptop with ONE command,
+#           using the same Dockerfiles the pipeline builds: `docker compose up --build`.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# No top-level `version:` key: modern Docker Compose ignores it and warns that it is obsolete.
+name: shop  # the project name; prefixes container, network and volume names
+services:  # each service becomes one (or more) containers
+  frontend:  # the React app served by nginx
+    build: ./frontend  # build the image from frontend/Dockerfile (the same one CI uses)
+    ports:  # "HOST:CONTAINER" port mappings
+      - "8080:80"  # open http://localhost:8080; always quote ports (YAML 1.1 can read 22:80 as a number)
+    depends_on:  # start these services first
+      - backend  # the short list form only waits for the container to START
+    restart: unless-stopped  # restart after crashes, but not after `docker compose stop`
+  backend:  # the Node.js API
+    build: ./backend  # build from backend/Dockerfile
+    ports:  # host:container
+      - "3000:3000"  # open http://localhost:3000
+    environment:  # environment variables for the container (a map; values should be strings)
+      NODE_ENV: development  # dev mode locally
+      PORT: "3000"  # quoted so it stays a string
+      DB_HOST: postgres  # the service NAME is its hostname on the Compose network
+      DB_PORT: "5432"  # Postgres' default port, quoted
+      DB_USER: shop  # must match POSTGRES_USER below
+      DB_PASSWORD: local_dev_only  # a throwaway password for your laptop only, never a real one
+      DB_NAME: shop  # must match POSTGRES_DB below
+    depends_on:  # the long map form can wait for a HEALTHY service, not just a started one
+      postgres:  # wait for the database...
+        # service_healthy waits until the postgres healthcheck below passes
+        condition: ___  # TODO(1): wait until the healthcheck passes (service_healthy)
+    restart: unless-stopped  # restart after crashes
+  postgres:  # the database
+    image: ___  # TODO(2): the official Postgres image, major version 16 (name:tag)
+    environment:  # settings the postgres image reads on its FIRST start
+      POSTGRES_USER: shop  # create this user
+      POSTGRES_PASSWORD: local_dev_only  # its password (local only)
+      POSTGRES_DB: shop  # create this database
+    ports:  # host:container
+      - "5432:5432"  # lets you connect with a DB tool from your laptop
+    volumes:  # keep data when the container is removed
+      # "volume-name:path-in-container"; the named volume is declared at the bottom of the file
+      - pgdata:/var/lib/postgresql/data  # where Postgres 16 keeps its data files
+    # TODO(3): add a healthcheck: test ["CMD-SHELL", "pg_isready -U shop -d shop"],
+    #          interval 5s, timeout 3s, retries 10
+    restart: unless-stopped  # restart after crashes
+volumes:  # named volumes managed by Docker
+  pgdata:  # empty value = default settings; data survives `docker compose down` (not `down -v`)

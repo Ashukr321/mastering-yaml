@@ -1,0 +1,34 @@
+# =====================================================================
+# Project 16 · K8s Frontend Deployment                    Level: ⭐⭐⭐⭐
+# File: k8s/service.yaml
+# Scenario: Pods come and go with new IPs on every update. Give the storefront one stable
+#           in-cluster address that always points at the ready pods.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# Services live in the core API group, which is written as just "v1"
+apiVersion: v1
+# a Service is a stable virtual IP + DNS name in front of a changing set of pods
+kind: Service
+metadata:  # information that identifies this object
+  # other pods reach it at http://shop-frontend (same namespace)
+  # or http://shop-frontend.<namespace>.svc.cluster.local (from anywhere in the cluster)
+  name: shop-frontend
+  labels:  # tags on the Service itself
+    app: shop-frontend  # which app this belongs to
+    tier: frontend  # which layer of the system it is
+spec:  # the desired state of the Service
+  # ClusterIP = reachable only inside the cluster; an Ingress (project 18) exposes it to the internet
+  type: ___  # TODO(1): the internal-only Service type (it is also the default)
+  selector:  # traffic goes to every READY pod that has ALL of these labels
+    app: ___  # TODO(2): must match the pod template labels in deployment.yaml
+    tier: frontend  # narrows the match to frontend pods only
+  ports:  # a Service can expose several ports; we need one
+    - name: http  # naming ports is required once there is more than one; a good habit anyway
+      port: 80  # the port clients of the Service connect to
+      # using the port NAME means you can change the container port later without touching this file
+      targetPort: ___  # TODO(3): forward to the container port named in deployment.yaml (a name, not a number)
+      protocol: TCP  # TCP is the default; written out to be explicit
+  # None = any ready pod can answer any request; static files need no sticky sessions
+  sessionAffinity: None

@@ -1,0 +1,81 @@
+# =====================================================================
+# Project 18 · K8s Ingress & Autoscaling                  Level: ⭐⭐⭐⭐
+# File: k8s/ingress-hpa.yaml
+# Scenario: Launch day for shop.example.com. Put the frontend and the API behind one HTTPS
+#           domain, and let the API add pods by itself when traffic spikes.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# This file holds TWO Kubernetes objects. Each `---` starts a new YAML document;
+# `kubectl apply -f ingress-hpa.yaml` creates both.
+# ---------- Document 1: Ingress (HTTP routing from the internet into Services) ----------
+apiVersion: networking.k8s.io/v1  # the stable API group/version for Ingress
+kind: Ingress  # rules that map hostnames and URL paths to Services
+metadata:  # information that identifies this object
+  name: shop  # the Ingress name
+  namespace: shop  # must be the same namespace as the Services it routes to
+  annotations:  # extra settings read by add-ons; keys and values are always strings
+    # cert-manager sees this annotation and gets a free Let's Encrypt certificate for the TLS hosts below
+    cert-manager.io/cluster-issuer: ___  # TODO(1): the ClusterIssuer name letsencrypt-prod
+    # send plain http:// visitors to https://
+    nginx.ingress.kubernetes.io/ssl-redirect: ___  # TODO(2): the text true, quoted (annotations must be strings)
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m  # allow uploads (product photos) up to 10 MB
+spec:  # the routing rules
+  ingressClassName: ___  # TODO(3): which Ingress controller handles this; we run ingress-nginx, class nginx
+  tls:  # HTTPS settings
+    - hosts:  # the hostnames the certificate must cover
+        - shop.example.com  # our public domain
+      # cert-manager stores the certificate + private key in this Secret; the controller reads it
+      secretName: ___  # TODO(4): name the Secret shop-example-com-tls
+  rules:  # one rule per hostname
+    - host: shop.example.com  # only requests for this Host header match
+      http:  # HTTP routing for that host
+        paths:  # the most specific (longest) matching path wins, whatever the order
+          # TODO(5): add a path / with pathType Prefix that routes to Service shop-frontend, port number 80
+          - path: /api  # requests whose path starts with /api
+            # Prefix matches /api, /api/ and /api/orders (whole path parts only, so NOT /apix)
+            pathType: ___  # TODO(6): the path type that matches /api and everything under it
+            backend:  # where matching requests go
+              service:  # a Service in the same namespace
+                name: shop-api  # the backend Service
+                port:  # which Service port
+                  number: 3000  # the API Service listens on 3000
+---
+# ---------- Document 2: HorizontalPodAutoscaler (adds/removes API pods automatically) ----------
+apiVersion: ___  # TODO(7): the stable HPA API that supports several metrics and `behavior`
+kind: HorizontalPodAutoscaler  # watches metrics and changes `replicas` on a Deployment for you
+metadata:  # information that identifies this object
+  name: shop-api  # usually named after the Deployment it scales
+  namespace: shop  # same namespace as that Deployment
+spec:  # the scaling rules
+  scaleTargetRef:  # WHAT to scale
+    apiVersion: apps/v1  # API version of the target object
+    kind: Deployment  # the target is a Deployment
+    name: ___  # TODO(8): the Deployment name from project 17
+  minReplicas: 2  # never fewer than 2 pods, even at night
+  maxReplicas: ___  # TODO(9): never more than 10 pods, a safety cap for the bill (a number)
+  # needs metrics-server in the cluster; Utilization is a % of the pod's resource REQUESTS
+  metrics:  # if several metrics are listed, the HPA picks whichever asks for the most pods
+    # TODO(10): add the first metric: type Resource, resource name cpu, target type Utilization,
+    #           averageUtilization 70 (copy the shape of the memory metric below)
+    - type: Resource  # a built-in resource metric
+      resource:  # which resource and what target
+        name: memory  # memory usage
+        target:  # the goal the HPA steers towards
+          type: Utilization  # measured as a % of the memory request
+          averageUtilization: 80  # add pods when average memory use goes above 80%
+  behavior:  # HOW FAST to scale, so the pod count doesn't flap up and down
+    scaleDown:  # rules for removing pods
+      # wait until the load has stayed low for this many seconds before removing any pod
+      stabilizationWindowSeconds: ___  # TODO(11): 5 minutes, written in seconds (a number)
+      policies:  # limits on how much can change at once
+        - type: Percent  # limit by percentage of current pods
+          value: 50  # remove at most half of the pods...
+          periodSeconds: 60  # ...per minute
+    scaleUp:  # rules for adding pods
+      stabilizationWindowSeconds: 0  # react to spikes right away
+      policies:  # limits on how much can change at once
+        - type: Pods  # limit by number of pods
+          value: 4  # add at most 4 pods...
+          periodSeconds: 60  # ...per minute

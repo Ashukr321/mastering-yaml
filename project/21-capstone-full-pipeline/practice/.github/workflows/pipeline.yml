@@ -1,0 +1,145 @@
+# =====================================================================
+# Project 21 · Capstone: Full CI/CD Pipeline              Level: ⭐⭐⭐⭐⭐
+# File: .github/workflows/pipeline.yml
+# Scenario: The shop team wants one pipeline: test every PR, and on main build both images,
+#           deploy to staging, then wait for a human to approve production.
+# Task: replace every ___ and complete every TODO(n). Hints are inline.
+# Check: yamllint --strict .   then compare with ../solution
+# =====================================================================
+---
+# No YAML anchors (&name / *name) here: GitHub Actions long rejected them, so repeated steps are written out.
+name: Shop CI/CD  # the name shown in the repo's Actions tab
+on:  # events that start the workflow
+  push:  # a commit is pushed...
+    branches:  # ...to one of these branches
+      - main  # only main, not feature branches
+  pull_request:  # a PR is opened or updated...
+    branches:  # ...that targets one of these branches
+      - main  # PRs into main
+permissions:  # what the automatic GITHUB_TOKEN may do; start with the least and add per job
+  contents: ___  # TODO(1): only allow reading the repo code (read, write or none)
+concurrency:  # stop two runs for the same branch from overlapping
+  # runs with the same group name wait in line; build it as ${{ github.workflow }}-${{ github.ref }}
+  group: ___  # TODO(2): one group per workflow + branch (hint above)
+  # cancel old PR runs when new commits arrive, but never cancel a deploy on main halfway through
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+env:  # variables available to every job and step
+  REGISTRY: ghcr.io  # GitHub Container Registry
+  K8S_NAMESPACE_STAGING: shop-staging  # where staging runs in the cluster
+  K8S_NAMESPACE_PROD: shop  # where production runs
+jobs:  # jobs run in parallel unless `needs` makes them wait
+  test:  # job id, used by `needs`
+    name: Test ${{ matrix.app }}  # the name shown in the UI, e.g. "Test frontend"
+    runs-on: ubuntu-latest  # a fresh GitHub-hosted Linux VM
+    strategy:  # run this job several times with different values
+      fail-fast: false  # if one app fails, still finish testing the other
+      matrix:  # every combination of these lists becomes its own job
+        app:  # the folder to test, read as ${{ matrix.app }}
+          - frontend  # the React app
+          - ___  # TODO(3): the second matrix value, the Node API folder backend
+    defaults:  # default settings for every `run:` step in this job
+      run:  # settings for shell steps
+        working-directory: ${{ matrix.app }}  # run commands inside frontend/ or backend/
+    steps:  # the job's steps, run in order
+      - uses: actions/checkout@v4  # download the repo code onto the VM
+      - uses: actions/setup-node@v4  # install Node.js
+        with:  # inputs for the action
+          node-version: "22"  # quoted so it stays the string "22"
+          cache: npm  # cache ~/.npm between runs to speed up installs
+          cache-dependency-path: ${{ matrix.app }}/package-lock.json  # cache key for this app
+      - run: npm ci  # clean install exactly what package-lock.json says
+      - run: npm test  # run the test suite; a failure fails the job
+  build-and-push:  # builds both Docker images and pushes them to ghcr.io
+    needs: ___  # TODO(4): wait for the test job (all matrix runs) to pass
+    if: ___  # TODO(5): only on a push to main
+    runs-on: ubuntu-latest  # a fresh Linux VM
+    permissions:  # job-level permissions replace the top-level ones for this job
+      contents: read  # still need to read the code
+      packages: ___  # TODO(6): allow pushing images to ghcr.io (read or write)
+    outputs:  # values later jobs can read as needs.build-and-push.outputs.<name>
+      image-tag: ___  # TODO(7): the tag step output, ${{ steps.vars.outputs.tag }}
+      image-prefix: ${{ steps.vars.outputs.prefix }}  # e.g. ghcr.io/acme/shop
+    steps:  # the job's steps
+      - uses: actions/checkout@v4  # get the code, including the Dockerfiles
+      # Image names must be lowercase, so ${GITHUB_REPOSITORY,,} lowercases owner/repo in bash.
+      # Writing name=value to $GITHUB_OUTPUT makes it available as steps.vars.outputs.name
+      - name: Work out image names  # computes the shared tag and prefix once
+        id: vars  # an id lets other steps and `outputs` refer to this step
+        run: |
+          echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "prefix=${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+      - uses: docker/login-action@v3  # log Docker in to the registry
+        with:  # inputs for the action
+          registry: ${{ env.REGISTRY }}  # ghcr.io
+          username: ${{ github.actor }}  # the user who triggered the run
+          password: ${{ secrets.GITHUB_TOKEN }}  # the automatic token; works because packages is write
+      - uses: docker/setup-buildx-action@v3  # the modern Docker builder, needed for caching below
+      - name: Build and push frontend  # build ./frontend and push it
+        uses: docker/build-push-action@v6  # builds an image from a Dockerfile
+        with:  # inputs for the action
+          context: ./frontend  # folder that holds the Dockerfile
+          push: true  # push after building
+          tags: ${{ steps.vars.outputs.prefix }}/frontend:${{ steps.vars.outputs.tag }}  # full image name
+          cache-from: type=gha,scope=frontend  # reuse layers cached by earlier runs
+          cache-to: type=gha,mode=max,scope=frontend  # save layers for the next run
+      - name: Build and push backend  # same as above, for ./backend
+        uses: docker/build-push-action@v6  # builds an image from a Dockerfile
+        with:  # inputs for the action
+          context: ./backend  # folder that holds the Dockerfile
+          push: true  # push after building
+          tags: ${{ steps.vars.outputs.prefix }}/backend:${{ steps.vars.outputs.tag }}  # full image name
+          cache-from: type=gha,scope=backend  # separate cache scope from the frontend
+          cache-to: type=gha,mode=max,scope=backend  # save layers for the next run
+  deploy-staging:  # roll the new images out to staging
+    needs: build-and-push  # wait for the images to exist
+    runs-on: ubuntu-latest  # a fresh Linux VM
+    environment: staging  # a GitHub Environment; its secrets (KUBECONFIG) belong to staging only
+    steps:  # the job's steps
+      - uses: actions/checkout@v4  # get the k8s/ manifests
+      - uses: azure/setup-kubectl@v4  # install the kubectl CLI
+      # the KUBECONFIG secret holds the whole kubeconfig file; write it where kubectl looks for it
+      - name: Write kubeconfig  # never echo the secret into the log
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s\n' "$KUBECONFIG_DATA" > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+        env:  # pass secrets in through env, not by pasting ${{ }} into the script
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}  # the environment's secret
+      # apply k8s/ (its files leave out metadata.namespace, so -n decides), then set the new image tags
+      - name: Deploy to staging  # `rollout status` waits and fails the job if pods don't become ready
+        run: |
+          kubectl -n "$NS" apply -f k8s/
+          kubectl -n "$NS" set image deployment/shop-frontend web="$PREFIX/frontend:$TAG"
+          kubectl -n "$NS" set image deployment/shop-api api="$PREFIX/backend:$TAG"
+          kubectl -n "$NS" rollout status deployment/shop-api --timeout=180s
+        env:  # inputs for the script
+          NS: ${{ env.K8S_NAMESPACE_STAGING }}  # the staging namespace
+          PREFIX: ${{ needs.build-and-push.outputs.image-prefix }}  # from the build job's outputs
+          TAG: ${{ needs.build-and-push.outputs.image-tag }}  # from the build job's outputs
+  deploy-production:  # same steps, aimed at production
+    # `needs.<job>` only works for jobs listed here, so list build-and-push too to read its outputs
+    needs: ___  # TODO(8): a flow list of build-and-push and deploy-staging
+    runs-on: ubuntu-latest  # a fresh Linux VM
+    environment:  # the long form of environment, with a link
+      name: production  # add "Required reviewers" to this environment in repo Settings = manual approval
+      url: ___  # TODO(9): the live site https://shop.example.com, shown as a link on the run
+    steps:  # written out again instead of using YAML anchors
+      - uses: actions/checkout@v4  # get the k8s/ manifests
+      - uses: azure/setup-kubectl@v4  # install the kubectl CLI
+      - name: Write kubeconfig  # this time the production environment's KUBECONFIG secret
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s\n' "$KUBECONFIG_DATA" > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+        env:  # pass the secret in through env
+          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}  # same secret name, production's value
+      - name: Deploy to production  # the very same images that passed staging
+        run: |
+          kubectl -n "$NS" apply -f k8s/
+          kubectl -n "$NS" set image deployment/shop-frontend web="$PREFIX/frontend:$TAG"
+          kubectl -n "$NS" set image deployment/shop-api api="$PREFIX/backend:$TAG"
+          kubectl -n "$NS" rollout status deployment/shop-api --timeout=180s
+        env:  # inputs for the script
+          NS: ${{ env.K8S_NAMESPACE_PROD }}  # the production namespace
+          PREFIX: ${{ needs.build-and-push.outputs.image-prefix }}  # same prefix as staging
+          TAG: ${{ needs.build-and-push.outputs.image-tag }}  # same tag as staging
