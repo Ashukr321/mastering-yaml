@@ -1,0 +1,12 @@
+# Used with website/Dockerfile; paths are relative to the repo-root build context.
+**/node_modules
+**/.next
+.git
+**/.env*
+!**/.env.example
+**/*.pdf
+**/*.log
+**/npm-debug.log*
+website/coverage
+.claude
+website/.claude

@@ -1,0 +1,54 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --panel: #fafafa;
+  --card: #ffffff;
+  --border: #e5e5e5;
+  --muted: #525252;
+  --accent: #cb171e;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --panel: #111111;
+  --card: #151515;
+  --border: #262626;
+  --muted: #a3a3a3;
+  /* lighter red keeps links readable on black */
+  --accent: #f87171;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-panel: var(--panel);
+  --color-card: var(--card);
+  --color-line: var(--border);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+[cmdk-item][data-selected="true"] {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
