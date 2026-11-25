@@ -267,7 +267,7 @@ function build(): Built {
         codeFiles: [],
       });
     }
-    categories.push(cat);
+    categories.unshift(cat);
   }
 
   const allDocs = () => categories.flatMap((c) => c.docs);
