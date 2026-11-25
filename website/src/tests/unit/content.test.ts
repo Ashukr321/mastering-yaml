@@ -48,12 +48,14 @@ describe("content loader (real notes)", () => {
     expect(missing).toEqual([]);
   });
 
-  it("gives every assets/ diagram its own Visual Guides page, in README order", () => {
+  it("explains every assets/ diagram on a Visual Guides page, listed first", () => {
     const guides = getAllDocs().filter((d) => d.category === "visual-guides");
     const assets = listAssets().filter((p) => p.startsWith("assets/") && IMAGE.test(p));
-    expect(guides.map((d) => d.images[0]).sort()).toEqual(assets.map(contentUrl).sort());
-    expect(guides[0].slug).toBe("visual-guides/banner");
-    expect(getDoc("visual-guides/yaml-anatomy")?.description).toBe("Anatomy of a YAML document");
+    for (const a of assets) {
+      expect(guides.some((d) => d.body.includes(`../${a}`))).toBe(true);
+    }
+    expect(getAllDocs()[0].slug).toBe("visual-guides/banner");
+    expect(getDoc("visual-guides/yaml-anatomy")?.title).toBe("YAML Anatomy: Every Part of a Document");
   });
 
   it("never serves files from website/, .git or .claude", async () => {

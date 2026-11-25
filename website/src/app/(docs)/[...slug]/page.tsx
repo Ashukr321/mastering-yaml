@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft, ChevronRight, ExternalLink } from "lucide-react";
-import Markdown from "@/components/Markdown";
+import Markdown, { CodeFileView } from "@/components/Markdown";
 import { SITE_NAME, getAllDocs, getDoc, getNeighbours, humanize } from "@/lib/content";
 
 export const dynamicParams = false;
@@ -51,7 +51,7 @@ export default async function DocPage({ params }: Props) {
       </nav>
       <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">{doc.title}</h1>
 
-      <div className="prose prose-neutral mt-6 max-w-none dark:prose-invert prose-a:text-accent prose-img:rounded-lg prose-pre:border prose-pre:border-line">
+      <div className="prose prose-neutral mt-6 max-w-none dark:prose-invert prose-a:text-accent prose-img:rounded-lg">
         {doc.body.trim() ? (
           <Markdown doc={doc} />
         ) : (
@@ -89,20 +89,13 @@ export default async function DocPage({ params }: Props) {
 
         {practice.length > 0 && <h2>Practice files</h2>}
         {practice.map((f) => (
-          <div key={f.path}>
-            <p className="mb-1 font-mono text-sm text-muted">{f.name}</p>
-            <pre>
-              <code>{f.content}</code>
-            </pre>
-          </div>
+          <CodeFileView key={f.path} name={f.name} content={f.content} />
         ))}
         {solution.length > 0 && <h2>Solution</h2>}
         {solution.map((f) => (
           <details key={f.path}>
             <summary className="cursor-pointer font-mono text-sm">{f.name}</summary>
-            <pre>
-              <code>{f.content}</code>
-            </pre>
+            <CodeFileView name={f.name} content={f.content} />
           </details>
         ))}
       </div>

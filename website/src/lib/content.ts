@@ -238,37 +238,9 @@ function build(): Built {
 
   const images = all.filter((f) => IMAGE_EXT.has(path.posix.extname(f).toLowerCase()) && !IGNORED_IMAGES.includes(f));
 
-  // Every diagram in assets/ also gets its own page (in README order), so each is searchable on its own.
-  const guides = images.filter((f) => f.startsWith("assets/"));
-  if (guides.length) {
-    const readme = rootReadme ? read(rootReadme) : "";
-    const order = linkedImages(readme, "", exists);
-    const rank = (f: string) => (order.includes(f) ? order.indexOf(f) : order.length);
-    const esc = (f: string) => f.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const altFor = (f: string) => {
-      const tag = readme.match(new RegExp(`<img\\b[^>]*src=["']${esc(f)}["'][^>]*>`, "i"));
-      return tag?.[0].match(/\balt=["']([^"']+)["']/i)?.[1] ?? readme.match(new RegExp(`!\\[([^\\]]+)\\]\\(${esc(f)}\\)`))?.[1];
-    };
-    const cat: Category = { slug: "visual-guides", title: "Visual Guides", docs: [] };
-    for (const img of [...guides].sort((a, b) => rank(a) - rank(b))) {
-      const name = path.posix.basename(img, path.posix.extname(img));
-      cat.docs.push({
-        slug: `${cat.slug}/${slugify(name)}`,
-        title: humanize(name),
-        description: altFor(img) ?? `${humanize(name)} diagram.`,
-        body: "",
-        category: cat.slug,
-        categoryTitle: cat.title,
-        dir: "assets",
-        // trailing "/" keeps these out of link resolution and image placement, like image-only folder pages
-        file: "assets/",
-        images: [contentUrl(img)],
-        visualizations: [],
-        codeFiles: [],
-      });
-    }
-    categories.unshift(cat);
-  }
+  // The visual-guides/ notes explain the assets/ diagrams; show them first in the sidebar (after Overview is placed).
+  const guidesAt = categories.findIndex((c) => c.slug === "visual-guides");
+  if (guidesAt > 0) categories.unshift(...categories.splice(guidesAt, 1));
 
   const allDocs = () => categories.flatMap((c) => c.docs);
 

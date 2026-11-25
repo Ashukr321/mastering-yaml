@@ -52,3 +52,69 @@ body {
 [cmdk-item][data-selected="true"] {
   background: color-mix(in srgb, var(--foreground) 8%, transparent);
 }
+
+/* code: editor-style blocks with a copy button, inline code chips */
+.prose :where(code):not(pre code) {
+  border-radius: 0.375rem;
+  padding: 0.125rem 0.375rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.875em;
+  font-weight: 500;
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+.prose :where(code):not(pre code)::before,
+.prose :where(code):not(pre code)::after {
+  content: none;
+}
+.code-block {
+  margin: 1.25rem 0;
+  overflow: hidden;
+  border: 1px solid #30363d;
+  border-radius: 0.75rem;
+  background: #0d1117;
+}
+.code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid #30363d;
+  padding: 0.375rem 0.5rem 0.375rem 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
+  color: #8b949e;
+}
+.code-head button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  color: #c9d1d9;
+  cursor: pointer;
+}
+.code-head button:hover {
+  background: #21262d;
+}
+.code-block pre {
+  margin: 0;
+  overflow-x: auto;
+  padding: 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #e6edf3;
+  background: transparent;
+}
+.hljs-comment, .hljs-quote { color: #8b949e; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-doctag, .hljs-meta .hljs-keyword { color: #ff7b72; }
+.hljs-string, .hljs-regexp, .hljs-meta .hljs-string { color: #a5d6ff; }
+.hljs-number, .hljs-literal, .hljs-attribute, .hljs-variable.constant_ { color: #79c0ff; }
+.hljs-attr { color: #7ee787; }
+.hljs-title, .hljs-title.function_, .hljs-title.class_, .hljs-section { color: #d2a8ff; }
+.hljs-built_in, .hljs-type, .hljs-params, .hljs-symbol, .hljs-variable, .hljs-template-variable { color: #ffa657; }
+.hljs-name, .hljs-tag, .hljs-selector-class, .hljs-selector-id, .hljs-bullet { color: #7ee787; }
+.hljs-meta { color: #ffa657; }
+.prose td:first-child code {
+  white-space: nowrap;
+}
